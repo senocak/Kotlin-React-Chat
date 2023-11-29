@@ -98,10 +98,11 @@ class JwtTokenProvider(
     /**
      * @param token -- jwt token
      */
-    fun validateToken(token: String) {
+    fun validateToken(token: String): UserInfoCache {
         try {
             getJwsClaims(token = token)
-            tokenEventMap[token] ?: throw Exception("Token could not found in local cache")
+            return tokenEventMap[token]
+                ?: throw Exception("Token could not found in local cache")
         } catch (ex: SignatureException) {
             log.error("Invalid JWT signature")
             throw AccessDeniedException("Invalid JWT signature")

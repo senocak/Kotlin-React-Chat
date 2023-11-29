@@ -363,7 +363,8 @@ class UserController(
                 if (columns.none { it == sortBy }) {
                     "Invalid sort column"
                         .also { log.error(it) }
-                        .run { throw ServerException(OmaErrorMessageType.BASIC_INVALID_INPUT, arrayOf(this), HttpStatus.BAD_REQUEST) }
+                        .run { throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
+                            variables = arrayOf(this), statusCode = HttpStatus.BAD_REQUEST) }
                 }
                 val paginationCriteria: PaginationCriteria = PaginationCriteria(page = page, size = size)
                     .also { it: PaginationCriteria ->

@@ -7,6 +7,7 @@ import com.github.senocak.domain.dto.ExceptionDto
 import com.github.senocak.domain.dto.LoginRequest
 import com.github.senocak.domain.dto.RefreshTokenRequest
 import com.github.senocak.domain.dto.RegisterRequest
+import com.github.senocak.domain.dto.UserInfoCache
 import com.github.senocak.domain.dto.UserResponse
 import com.github.senocak.domain.dto.UserWrapperResponse
 import com.github.senocak.exception.ServerException
@@ -40,7 +41,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.data.domain.Pageable
 
 @RestController
 @RequestMapping(AuthController.URL)
@@ -71,19 +71,18 @@ class AuthController(
     fun login(
         @Parameter(description = "Request body to login", required = true) @Validated @RequestBody loginRequest: LoginRequest,
         resultOfValidation: BindingResult
-    ): UserWrapperResponse {
+    ): UserWrapperResponse =
         validate(resultOfValidation = resultOfValidation)
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(loginRequest.username, loginRequest.password)
-        )
-        val user: User = userService.findByUsername(username = loginRequest.username!!)
-        val userResponse: UserResponse = user.convertEntityToDto(
-            roles = true,
-            friends = friendService.findAll(specification = friendService.createSpecification(owner = user))
-                .map { f: Friend -> f.convertEntityToDto() }
-        )
-        return generateUserWrapperResponse(userResponse = userResponse)
-    }
+            .run { authenticationManager.authenticate(UsernamePasswordAuthenticationToken(loginRequest.username, loginRequest.password)) }
+            .run { userService.findByUsername(username = loginRequest.username!!) }
+            .run {
+                this.convertEntityToDto(
+                    roles = true,
+                    friends = friendService.findAll(specification = friendService.createSpecification(owner = this))
+                        .map { f: Friend -> f.convertEntityToDto() }
+                )
+            }
+            .run { generateUserWrapperResponse(userResponse = this) }
 
     @PostMapping("/register")
     @Operation(
@@ -104,28 +103,44 @@ class AuthController(
         resultOfValidation: BindingResult
     ): ResponseEntity<UserWrapperResponse> {
         validate(resultOfValidation = resultOfValidation)
-        if (userService.existsByUsername(username = signUpRequest.username!!))
-            throw ServerException(omaErrorMessageType = OmaErrorMessageType.JSON_SCHEMA_VALIDATOR, variables = arrayOf("Username is already taken!"))
-                    .also { log.error("Username: ${signUpRequest.username} is already taken!") }
-        if (userService.existsByEmail(email = signUpRequest.email!!))
-            throw ServerException(omaErrorMessageType = OmaErrorMessageType.JSON_SCHEMA_VALIDATOR, variables = arrayOf("Email Address already in use!"))
-                    .also { log.error("Email Address: ${signUpRequest.email} is already taken!") }
+        if (userService.existsByUsername(username = signUpRequest.username))
+            "Username: ${signUpRequest.username} is already taken!"
+                .also { log.error(it) }
+                .run {
+                    throw ServerException(omaErrorMessageType = OmaErrorMessageType.JSON_SCHEMA_VALIDATOR,
+                        variables = arrayOf(this))
+                }
+        if (userService.existsByEmail(email = signUpRequest.email))
+            "Email Address: ${signUpRequest.email} is already taken!"
+                .also { log.error(it) }
+                .run {
+                    throw ServerException(omaErrorMessageType = OmaErrorMessageType.JSON_SCHEMA_VALIDATOR,
+                        variables = arrayOf(this))
+                }
         val userRole: Role = roleService.findByName(roleName = RoleName.ROLE_USER)
-                ?: throw ServerException(omaErrorMessageType = OmaErrorMessageType.MANDATORY_INPUT_MISSING, variables = arrayOf("User Role is not found"))
-                        .also { log.error("User Role is not found") }
-        val user = User(name = signUpRequest.name!!, username = signUpRequest.username!!, email = signUpRequest.email!!,
-            password = passwordEncoder.encode(signUpRequest.password), roles = arrayListOf(userRole)
-        )
-        val result: User = userService.save(user = user)
-        log.info("User created. User: $result")
-        val `object`: UserWrapperResponse? = try {
-            login(loginRequest = LoginRequest(username = signUpRequest.username, password = signUpRequest.password), resultOfValidation = resultOfValidation)
+                ?: "User Role is not found"
+                    .also { log.error(it) }
+                    .run {
+                        throw ServerException(omaErrorMessageType = OmaErrorMessageType.MANDATORY_INPUT_MISSING,
+                            variables = arrayOf(this))
+                    }
+        val user: User = User(name = signUpRequest.name, username = signUpRequest.username, email = signUpRequest.email,
+            password = passwordEncoder.encode(signUpRequest.password), roles = arrayListOf(userRole))
+            .run { userService.save(user = this) }
+            .also { log.info("User created. User: $it") }
+        try {
+            return login(loginRequest = LoginRequest(username = user.username, password = signUpRequest.password), resultOfValidation = resultOfValidation)
+                .run {
+                    ResponseEntity.status(HttpStatus.CREATED).body(this)
+                }
         } catch (e: Exception) {
-            throw ServerException(omaErrorMessageType = OmaErrorMessageType.GENERIC_SERVICE_ERROR, statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
-                variables = arrayOf("Error occurred for generating jwt attempt", HttpStatus.INTERNAL_SERVER_ERROR.toString()))
-                    .also { log.error("Exception: ${e.message}") }
+            "Error occurred for generating jwt attempt: ${e.message}"
+                .also { log.error(it) }
+                .run {
+                    throw ServerException(omaErrorMessageType = OmaErrorMessageType.GENERIC_SERVICE_ERROR, statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
+                        variables = arrayOf(this, HttpStatus.INTERNAL_SERVER_ERROR.toString()))
+                }
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(`object`)
     }
 
     @PostMapping("/refresh")
@@ -146,10 +161,27 @@ class AuthController(
         resultOfValidation: BindingResult
     ): UserWrapperResponse {
         validate(resultOfValidation = resultOfValidation)
-        val userNameFromJWT: String = tokenProvider.getUserNameFromJWT(token = refreshTokenRequest.token!!)
-        val user: User = userService.findByUsername(username = userNameFromJWT)!!
+        val userInfoCache: UserInfoCache = tokenProvider.validateToken(token = refreshTokenRequest.token)
+        if (userInfoCache.type != "refresh")
+            "It should be refresh token"
+                .also { log.error(it) }
+                .run {
+                    throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
+                        variables = arrayOf(this), statusCode = HttpStatus.BAD_REQUEST)
+                }
+        return tokenProvider.getUserNameFromJWT(token = refreshTokenRequest.token)
+            .run { userService.findByUsername(username = this) }
             .also { tokenProvider.markLogoutEventForToken(username = it.username) }
-        return generateUserWrapperResponse(userResponse = user.convertEntityToDto())
+            .run {
+                this.convertEntityToDto(
+                    roles = true,
+                    friends = friendService.findAll(specification = friendService.createSpecification(owner = this))
+                        .map { f: Friend -> f.convertEntityToDto() }
+                )
+            }
+            .run {
+                generateUserWrapperResponse(userResponse = this)
+            }
     }
 
     @PostMapping("/logout")
@@ -166,10 +198,10 @@ class AuthController(
         ]
     )
     @Throws(ServerException::class)
-    fun logout(request: HttpServletRequest): ResponseEntity<Unit> {
-        userService.loggedInUser.also { tokenProvider.markLogoutEventForToken(username = it.username) }
-        return ResponseEntity.noContent().build()
-    }
+    fun logout(request: HttpServletRequest): ResponseEntity<Unit> =
+        userService.loggedInUser
+            .run { tokenProvider.markLogoutEventForToken(username = this.username) }
+            .run { ResponseEntity.noContent().build() }
 
     /**
      * Generate UserWrapperResponse with given UserResponse

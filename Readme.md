@@ -1,1 +1,1 @@
-## Full Stack Blog app with Spring Boot, Spring Security, JWT, React
+## Full Stack Chat app with Spring Boot, Spring Security, JWT, React, Redux

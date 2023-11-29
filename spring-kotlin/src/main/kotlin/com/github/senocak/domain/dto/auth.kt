@@ -21,29 +21,28 @@ data class LoginRequest(
 
 data class RefreshTokenRequest(
     @Schema(example = "Lorem Ipsum", description = "Name of the user", required = true, name = "name", type = "String")
-    @field:NotBlank
-    @field:Size(min = 4, max = 40)
-    var token: String? = null
+    @field:Size(min = 180, max = 188)
+    var token: String
 ): BaseDto()
 
 data class RegisterRequest(
     @Schema(example = "Lorem Ipsum", description = "Name of the user", required = true, name = "name", type = "String")
     @field:NotBlank
     @field:Size(min = 4, max = 40)
-    var name: String? = null,
+    var name: String,
 
     @Schema(example = "asenocak", description = "Username of the user", required = true, name = "username", type = "String")
     @field:NotBlank
     @field:Size(min = 3, max = 15)
-    var username: String? = null,
+    var username: String,
 
     @Schema(example = "lorem@ipsum.com", description = "Email of the user", required = true, name = "email", type = "String")
 //    @field:Pattern(regexp = AppConstants.MAIL_REGEX)
     @field:ValidEmail
-    var email: String? = null,
+    var email: String,
 
     @Schema(example = "asenocak123", description = "Password of the user", required = true, name = "password", type = "String")
     @field:NotBlank
     @field:Size(min = 6, max = 20)
-    var password: String? = null
+    var password: String
 ): BaseDto()
