@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Anıl Şenocak Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="./css/app.css" rel="stylesheet">
+    <script src="./js/jquery.min.js"></script>
+</head>
+<body>
+<main>
+    <section id="intro" style="max-width: 60rem; margin: 3rem auto 0;">
+        <div class="flex-row-between">
+            <a href="/"><h1 class="Flintstone glitch" data-text="Anıl Şenocak">Anıl Şenocak</h1></a>
+            <div>
+                <button title="Change theme" id="theme-toggle" onclick="modeSwitcher()" style="float: left;"><div></div></button>
+                <a href="https://github.com/P0WEX" title="github" target="_blank" rel="noopener noreferrer"><i class="fa fa-github" aria-hidden="true"></i></a>
+                <a href="https://www.linkedin.com/in/anilsenocak27/" title="linkedin" target="_blank" rel="noopener noreferrer"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+            </div>
+        </div>
+        <div style="text-align: justify;">
+            <a href="/"><img class="profile-avatar" src="https://avatars.githubusercontent.com/u/6429176" width="175px" style="border-radius: 50%; float: left;box-shadow: 0 0 1px 11px rgb(0 0 0 / 15%), 0 0 1px 22px rgb(0 0 0 / 10%);border: 4px solid #050506;" title="{{ env('APP_ENV') }}"></a>
+            <p>I am a citizen of the world, born and raised in Turkey. Got education from Firat University in Software Engineering.</p>
+            <p>I have interest in every single thing on the earth including politic, evolution, religion etc. Loved to be in touch with computer and technology.</p>
+            <p>Currently, I am working in <a href="https://www.orioninc.com/" target="_blank">Orion Innovation</a> as a Backend Software Engineer and living in Istanbul.</p>
+        </div>
+        <ul>
+            <li style="list-style-type: none;">
+                <a href="/"><span class="badge" style="color: #fff;background-color: #343a40;">Anasayfa</span></a>
+                <a href="/admin/yazilar"><span class="badge" style="color: #212529;background-color: #ffc107;">Yazılar</span></a>
+                <a href="/admin/kategoriler"><span class="badge" style="color: #212529;background-color: #ffc107;">Kategoriler</span></a>
+                <a href="/admin/yorumlar"><span class="badge" style="color: #212529;background-color: #ffc107;">Yorumlar</span></a>
+                <a href="/admin/ayarlar"><span class="badge" style="color: #212529;background-color: #ffc107;">Ayarlar</span></a>
+                <a href="/admin/dosyalar"><span class="badge" style="color: #212529;background-color: #ffc107;">Dosyalar</span></a>
+                <!--
+                <a href="#base64"><span class="badge" style="color: #212529;background-color: #ffc107;">Base64</span></a>
+                <div id="base64" class="modal">
+                    <div class="modal__content">
+                        <p>
+                            You can use the :target pseudo-class to create a modals with Zero JavaScript. Enjoy!
+                        </p>
+                        <a href="#" class="modal__close">&times;</a>
+                    </div>
+                </div>
+                -->
+                <a href="/admin"><span class="badge" style="color: #212529;background-color: red; text-align: right">Çıkış Yap</span></a>
+            </li>
+        </ul>
+    </section>
+    <div style="margin-right: auto;margin-left: auto;max-width: 70rem;margin-top: 2rem;width: 100%;">
+        <div class="search-article">
+            <label for="search-input" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(128,128,128,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search" data-darkreader-inline-fill="" data-darkreader-inline-stroke="" style="--darkreader-inline-fill:none; --darkreader-inline-stroke:rgba(152, 143, 129, 0.8);">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </label>
+            <input type="search" id="search-input" placeholder="Yazıları arayabilirsiniz." aria-label="Search" onkeyup="myFunction()">
+            <ul id="search-results"></ul>
+        </div>
+        <script>
+            function myFunction() {
+                var input = document.getElementById("search-input").value.toUpperCase()
+                $allListElements = $('#myUL > li')
+                var $matchingListElements = $allListElements.filter(function(i, li){
+                    var listItemText = $(li).text().toUpperCase()
+                    return ~listItemText.indexOf(input)
+                })
+                $allListElements.hide()
+                $matchingListElements.show()
+            }
+        </script>
+        <section class="posts" >
+            <h2>baslik</h2>
+            <ul id="myUL">
+                <li>
+                    <a href="/yazi/url">baslik</a>
+                    »
+                    <span class="badge" title="{{$etiket}}" style="background-color: #0d6e9059;">{{$etiket}}</span>
+                    <!--
+                    »
+                    <time datetime="{{$yazi->created_at}}">{{$yazi->created_at->diffForHumans()}}</time>
+                    »
+                    »
+                    <span class="badge" style="background-color: #ff596a42;">{{count($yazi->yorum)}} Yorum</span>
+                    -->
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+<script>
+    function setTheme(theme) {
+        if (theme === "dark") {
+            document.documentElement.setAttribute('data-theme', 'dark')
+            window.localStorage.setItem('theme', 'dark')
+            document.getElementById("theme-toggle").classList.add('sun')
+            document.getElementById("theme-toggle").classList.remove('moon')
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light')
+            window.localStorage.setItem('theme', 'light')
+            document.getElementById("theme-toggle").classList.add('moon')
+            document.getElementById("theme-toggle").classList.remove('sun')
+        }
+    }
+    let theme = localStorage.getItem('theme')
+    theme = theme || (window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' : 'light')
+    setTheme(theme)
+    function modeSwitcher() {
+        let currentMode = document.documentElement.getAttribute('data-theme')
+        if (currentMode === "dark") setTheme('light')
+        else setTheme('dark')
+    }
+</script>
+</body>
+</html>
+<!--
+    https://p0wex.github.io/Gesko/
+    https://github.com/DavideBri/Gesko
+-->
+
+<style>
+    .modal {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(77, 77, 77, .7);
+        transition: all .4s;
+    }
+    .modal:target {
+        visibility: visible;
+        opacity: 1;
+    }
+    .modal__content {
+        position: relative;
+        max-width: 90%;
+        background: #fff;
+        padding: 1em 2em;
+        z-index: 111;
+        color: black;
+    }
+    .modal__close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>

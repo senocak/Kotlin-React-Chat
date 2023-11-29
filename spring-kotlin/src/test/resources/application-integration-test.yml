@@ -1,0 +1,10 @@
+spring:
+  liquibase:
+    enabled: false
+#  datasource:
+#    url: jdbc:tc:mysql:8.0.1://localhost/spring?TC_INITSCRIPT=file:src/test/resources/V1__init.sql
+#    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+#  jpa:
+#    database-platform: org.hibernate.dialect.MySQL8Dialect
+#    hibernate:
+#      ddl-auto: create-drop

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Web Socket Client</title>
+        <style>
+            html, body {width: 99%;background-color: rgb(24 26 27);color: #bbbaba;}
+            fieldset {margin-bottom: 10px;padding: 5px 10px;border: 1px solid #777;}
+            legend {padding: 0 5px;color: #777;font-size: 11pt;font-weight: bold;}
+            #connectionStatus {font-weight: bold;}
+            #from, #to {width: 100%;border-color: rgb(77, 83, 86); background-color: #1f2121; color: #bbbaba}
+            #sendMessage {width: 100%;border: 1px solid #999; resize: none;background-color: #1f2121; color: #bbbaba}
+            #disconnectButton {display: none;}
+            #messages {height: 100%;overflow: auto;border-color: rgb(101, 94, 83);background-color: #1f2121; color: #bbbaba }
+            #messages pre {width: 100%;color: #bbbaba;}
+            button, ::-webkit-scrollbar {background-color: #202324;color: #aba499;}
+            ::-webkit-scrollbar-thumb {background-color: #454a4d;}
+            ::-webkit-scrollbar-thumb:hover {background-color: #575e62;}
+        </style>
+    </head>
+    <body>
+        <div style="width: 100%; overflow: hidden;">
+            <div style="width: 40%; float: left;">
+                <fieldset id="requestArea" style="height: 400px;">
+                    <legend><span id="connectionStatus">CLOSED</span></legend>
+                    <div>
+                        <label for="from"></label>
+                        <input type="text" id="from" placeholder="lorem" value="lorem"/>
+                        <label for="to"></label>
+                        <select name="" id="to" disabled></select>
+                        <label for="sendMessage"></label>
+                        <textarea id="sendMessage" disabled placeholder="Json message to send" rows="15">Hello from lorem</textarea>
+                    </div>
+                    <br>
+                    <div>
+                        <button id="connectButton">Open</button>
+                        <button id="disconnectButton">Close</button>
+                        <button id="sendButton" disabled="disabled">Send</button>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div style="margin-left: 40%;">
+                <fieldset id="messageArea" style="height: 400px;">
+                    <legend><button id="clearMessage">Clear</button></legend>
+                    <div id="messages"></div>
+                </fieldset>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.4.3/jquery.js"></script>
+        <script>
+            $(function() {
+                let
+                    ws                  = null,
+                    connected           = false,
+                    from                = $('#from'),
+                    connectionStatus    = $('#connectionStatus'),
+                    to                  = $('#to'),
+                    sendMessage         = $('#sendMessage'),
+                    connectButton       = $('#connectButton'),
+                    disconnectButton    = $('#disconnectButton'),
+                    sendButton          = $('#sendButton'),
+                    clearMessage        = $('#clearMessage'),
+                    messages            = $('#messages')
+
+                connectButton.click(function() {
+                    close()
+                    open()
+                })
+
+                disconnectButton.click(function() {
+                    close()
+                })
+
+                sendButton.click(function() {
+                    const to1 = to.find(":selected").text()
+                    const msg = sendMessage.val()
+                    const data = "{\"to\":\"" + to1 + "\",\"content\":\"" + msg + "\"}"
+                    addMessage(data, 'SENT')
+                    ws.send(data)
+                });
+
+                clearMessage.click(function() {
+                    clearLog()
+                })
+
+                const open = function () {
+                    console.log('Opening websocket...')
+                    ws = new WebSocket(`ws://${location.host}/websocket/${from.val()}/default`)
+                    ws.onopen = onOpen
+                    ws.onclose = onClose
+                    ws.onmessage = onMessage
+                    ws.onerror = onError
+
+                    connectionStatus.text('OPENING ...')
+                    from.attr('disabled', 'disabled')
+                    connectButton.hide()
+                    disconnectButton.show()
+                }
+
+                const onOpen = function() {
+                    console.log('Websocket opened')
+                    connected = true
+                    connectionStatus.text('OPENED')
+                    to.removeAttr('disabled')
+                    sendMessage.removeAttr('disabled')
+                    sendButton.removeAttr('disabled')
+                }
+
+                const onClose = function() {
+                    console.log('Websocket closed')
+                    ws = null
+                }
+
+                const onMessage = function(event) {
+                    const data = event.data
+                    console.log('Received message: ' + data)
+                    const type = JSON.parse(data).type
+                    const content = JSON.parse(data).content
+                    if (type === "online") {
+                        console.log('Received online list: ' + content)
+                        const users = content.split(",")
+
+                        for (const user in users) {
+                            to.each(function(){
+                                if (this.value !== users[user] && from.val() !== users[user]) {
+                                    to.append(new Option(users[user], users[user]))
+                                }
+                            });
+                        }
+                    }else if (type === "login") {
+                        console.log('Received login for: ' + content)
+                        to.each(function(){
+                            if (this.value !== content && from.val() !== content) {
+                                to.append(new Option(content, content))
+                            }
+                        });
+                    }else if (type === "logout") {
+                        console.log('Received logout for: ' + content)
+                        to.find('option').each(function(){
+                            if ($(this).val() === content) {
+                                $(this).remove()
+                            }
+                        });
+                    }
+                    addMessage(data)
+                }
+
+                const onError = function(event) {
+                    const data = event.data;
+                    console.log('Websocket error: ' + data)
+                    alert(data)
+                    messages.html('')
+                    close()
+                }
+
+                const close = function () {
+                    if (ws) {
+                        console.log("Websocket is closing")
+                        ws.close()
+                    }
+                    connected = false
+                    connectionStatus.text('CLOSED')
+
+                    from.removeAttr('disabled')
+                    connectButton.show()
+                    disconnectButton.hide()
+                    sendMessage.attr('disabled', 'disabled')
+                    to.attr('disabled', 'disabled')
+                    to.empty()
+                    sendButton.attr('disabled', 'disabled')
+                }
+
+                const addMessage = function(data, type) {
+                    console.log('Adding message: ' + data)
+                    const msg = $('<pre>').text(data)
+                    if (type === "SENT") {
+                        console.log("Sending message: " + msg)
+                    }
+                    messages.append(msg)
+
+                    const msgBox = messages.get(0)
+                    while (msgBox.childNodes.length > 1000) {
+                        msgBox.removeChild(msgBox.firstChild)
+                    }
+                    msgBox.scrollTop = msgBox.scrollHeight
+                }
+
+                const clearLog = function() {
+                    console.log('Clearing log')
+                    $('#messages').html('')
+                }
+            })
+        </script>
+    </body>
+</html>

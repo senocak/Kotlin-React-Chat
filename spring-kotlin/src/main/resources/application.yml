@@ -1,0 +1,68 @@
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+spring:
+  h2:
+    console:
+      enabled: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  datasource:
+    url: jdbc:h2:file:./chat
+    username: root
+    password: senocak
+    hikari:
+      minimum-idle: 0 # The minimum connection pool size is 0
+      maximum-pool-size: 40 # it can grow to at most 40 connections
+      max-lifetime: 900_000 # to retire pooled connections after 10 minutes
+      transaction-isolation: TRANSACTION_READ_COMMITTED # to optimize the number of gap locks held by db when traversing the clustered index for bulk updates or deletes.
+  flyway:
+    locations: classpath:db/migration
+    placeholderReplacement: false
+    sql-migration-prefix: V
+    table: flyway_schema_history
+    enabled: false
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 10
+    hibernate:
+      ddl-auto: create-drop
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    deserialization:
+      fail-on-unknown-properties: true
+    time-zone: UTC
+    mapper:
+      sort-properties-alphabetically: false
+logging:
+  level:
+    net:
+      ttddyy:
+        dsproxy:
+          listener: debug
+    org:
+      hibernate:
+        SQL: off
+      springframework:
+        security: debug
+        web: error
+  file:
+    name: ./var/logs/app.log
+app:
+  jwtSecret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
+  jwtExpirationInMs: '#{60 * 50 * 1000}' # 50 minutes in milliseconds
+  refreshExpirationInMs: '#{24 * 60 * 60 * 1000}' # 24 hours in milliseconds
+springdoc:
+  api-docs:
+    path: /api/v1/swagger
+  version: @project.version@

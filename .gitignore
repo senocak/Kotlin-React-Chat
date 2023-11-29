@@ -1,0 +1,6 @@
+spring-kotlin/target
+spring-kotlin/.idea
+
+.idea
+.vscode-
+/var/

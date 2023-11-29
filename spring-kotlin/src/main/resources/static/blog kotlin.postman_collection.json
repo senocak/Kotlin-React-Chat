@@ -1,0 +1,1297 @@
+{
+	"info": {
+		"_postman_id": "b7c82eff-e36d-4571-a646-aa58e4290e55",
+		"name": "blog kotlin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7821151",
+		"_collection_link": "https://lively-comet-8198.postman.co/workspace/An%C4%B1l~d33d46fc-ebc0-4ccb-81ba-caceff009d2d/collection/7821151-b7c82eff-e36d-4571-a646-aa58e4290e55?action=share&creator=7821151&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login-user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.globals.set(\"token\", json.token)",
+									"    pm.globals.set(\"refreshToken\", json.refreshToken)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer OV6KcNL0OhqKKbkWmE9GCWziDrVzV162dI4HuvqEzUYeFRhuAILiBsWV9BrHP5EknEuF5D0dZAN0zLCKs5fSTemowPyWhCOjbYUeqWmsuwhRthIooTgmyCnYQXMmUKecci9ObZ2UdUuSnTFeI0L2PuyUIIRnmlY6jZjM2esjeuX1RmAjxgeoMQinRVow8tCCSc1qhrRQtpNp5sRHJ0yVbrWfIzYJ8dkGxlei3niBugAYXgxCXTAmqggsWL3Ieha8",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"asenocakUser\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.globals.set(\"token\", json.token)",
+									"    pm.globals.set(\"refreshToken\", json.refreshToken)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer OV6KcNL0OhqKKbkWmE9GCWziDrVzV162dI4HuvqEzUYeFRhuAILiBsWV9BrHP5EknEuF5D0dZAN0zLCKs5fSTemowPyWhCOjbYUeqWmsuwhRthIooTgmyCnYQXMmUKecci9ObZ2UdUuSnTFeI0L2PuyUIIRnmlY6jZjM2esjeuX1RmAjxgeoMQinRVow8tCCSc1qhrRQtpNp5sRHJ0yVbrWfIzYJ8dkGxlei3niBugAYXgxCXTAmqggsWL3Ieha8",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"asenocakAdmin\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.globals.set(\"token\", json.token)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"lorem ipsum\",\n    \"email\": \"lorem@ipsum.com\",\n    \"username\": \"lorem\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.globals.set(\"token\", json.token)",
+									"    pm.globals.set(\"refreshToken\", json.refreshToken)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/auth/refresh",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/auth/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "post",
+			"item": [
+				{
+					"name": "posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"post_slug\", json.post[0].slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/posts",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "asenocakAdmin",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "java",
+									"disabled": true
+								},
+								{
+									"key": "next",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "max",
+									"value": "2",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"post_slug\", json.post.slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"{{$randomJobTitle}}\",\n    \"body\": \"{{$randomLoremParagraph}}\",\n    \"category\": [\n        \"spring-boot\",\n        \"spring-boot\"\n    ],\n    \"tags\": [\n        \"{{$randomWord}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"post_slug\", json.post.slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"{{$randomJobTitle}}\",\n    \"body\": \"{{$randomLoremParagraph}}\",\n    \"category\": [\n        \"spring-boot\"\n    ],\n    \"tags\": [\n        \"{{$randomWord}}\",\n        \"{{$randomAdjective}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts/{{post_slug}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{post_slug}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts/{post_slug}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usernameOrEmail\": \"anil1@senocak.com\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts/{{post_slug}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{post_slug}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts/{post_slug}/comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"comment_id\", json.comment.resourceId)",
+									"console.log(json)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomUserName}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"body\": \"{{$randomLoremParagraph}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts/{{post_slug}}/comment",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{post_slug}}",
+								"comment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts/{post_slug}/comment/{comment_id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"name\",\n    \"email\": \"email@email.com\",\n    \"body\": \"body\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts/{{post_slug}}/comment/{{comment_id}}?approve=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{post_slug}}",
+								"comment",
+								"{{comment_id}}"
+							],
+							"query": [
+								{
+									"key": "approve",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "posts/{post_slug}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"name\",\n    \"email\": \"email@email.com\",\n    \"body\": \"body\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/posts/{{post_slug}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{post_slug}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "category",
+			"item": [
+				{
+					"name": "categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"category_slug\", json.category[0].slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/categories",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "posts",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"category_slug\", json.category.slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomJobTitle}}\",\n    \"image\": \"{{$randomImageDataUri}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/categories",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categories/{slug}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"category_slug\", json.category.slug)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomJobTitle}}\",\n    \"image\": \"{{$randomImageDataUri}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/categories/{{category_slug}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_slug}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categories/{slug}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/categories/{{category_slug}}?posts=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_slug}}"
+							],
+							"query": [
+								{
+									"key": "posts",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categories/{slug}/image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/categories/{{category_slug}}/image",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_slug}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categories/{slug}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/v1/categories/{{category_slug}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_slug}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/user/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"asenocak2\",\n    \"password\": \"asenocak2\",\n    \"password_confirmation\": \"asenocak2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/user/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comment",
+			"item": [
+				{
+					"name": "list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.globals.set(\"comment_resourceId\", json.comment[0].resourceId)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/v1/comments",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/v1/comments/{{comment_resourceId}}?status=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"{{comment_resourceId}}"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/v1/comments/{{comment_resourceId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"{{comment_resourceId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "settings",
+			"item": [
+				{
+					"name": "log",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/admin/settings/log?level=debug",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"settings",
+								"log"
+							],
+							"query": [
+								{
+									"key": "level",
+									"value": "debug"
+								},
+								{
+									"key": "level",
+									"value": "info",
+									"disabled": true
+								},
+								{
+									"key": "level",
+									"value": "warn",
+									"disabled": true
+								},
+								{
+									"key": "level",
+									"value": "error",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "graphql",
+			"item": [
+				{
+					"name": "getLogLevel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n    getLogLevel\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{url}}/graphql/v1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"graphql",
+								"v1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeLogLevel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\r\n    changeLogLevel(loglevel: \"debug\")\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{url}}/graphql/v1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"graphql",
+								"v1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "sse",
+			"item": [
+				{
+					"name": "connect",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sse",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sse"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "publish",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "anilsenocak2"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sse",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sse"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:8080",
+			"type": "default"
+		}
+	]
+}
