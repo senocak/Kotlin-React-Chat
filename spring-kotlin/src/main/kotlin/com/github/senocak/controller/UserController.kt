@@ -31,10 +31,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.constraints.Pattern
 import java.util.ArrayList
 import java.util.Date
-import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.BindingResult
@@ -338,7 +336,7 @@ class UserController(
 
     @Throws(ServerException::class)
     @Operation(
-        summary = "Get messages",
+        summary = "Get messages between",
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
@@ -358,34 +356,38 @@ class UserController(
         @Parameter(name = "q", description = "Search keyword", example = "lorem") @RequestParam(required = false) q: String?,
     ): MessagesPaginationDTO =
         userService.loggedInUser
-            .run {
+            .run me@ {
                 val columns: ArrayList<String> = arrayListOf("id", "from", "to", "read", "createdAt", "updatedAt")
                 if (columns.none { it == sortBy }) {
                     "Invalid sort column"
                         .also { log.error(it) }
-                        .run { throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
-                            variables = arrayOf(this), statusCode = HttpStatus.BAD_REQUEST) }
+                        .run error@ { throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
+                            variables = arrayOf(this@error), statusCode = HttpStatus.BAD_REQUEST) }
                 }
-                val paginationCriteria: PaginationCriteria = PaginationCriteria(page = page, size = size)
+                PaginationCriteria(page = page, size = size)
                     .also { it: PaginationCriteria ->
                         it.sortBy = sortBy
                         it.sort = sort
                         it.columns = columns
                     }
-                val messagePage: Page<Message> = userService.findAll(
-                    specification = userService.createSpecification(
-                        user1 = this,
-                        user2 = userService.findByEmail(email = email),
-                        body = q
-                    ),
-                    pageRequest = PageRequestBuilder.build(paginationCriteria = paginationCriteria)
-                )
-                MessagesPaginationDTO(
-                    pageModel = messagePage,
-                    items = messagePage.content.map { it: Message -> it.convertEntityToDto() }.toList(),
-                    sortBy = sortBy,
-                    sort = sort
-                )
+                    .run paginationCriteria@ {
+                        userService.findAll(
+                            specification = userService.createSpecification(
+                                user1 = this@me,
+                                user2 = userService.findByEmail(email = email),
+                                body = q
+                            ),
+                            pageRequest = PageRequestBuilder.build(paginationCriteria = this@paginationCriteria)
+                        )
+                    }
+                    .run messagePage@ {
+                        MessagesPaginationDTO(
+                            pageModel = this@messagePage,
+                            items = this@messagePage.content.map { it: Message -> it.convertEntityToDto() }.toList(),
+                            sortBy = sortBy,
+                            sort = sort
+                        )
+                    }
             }
 
     // TODO: fire event in ws
