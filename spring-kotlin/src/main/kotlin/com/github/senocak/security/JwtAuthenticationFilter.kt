@@ -51,8 +51,8 @@ class JwtAuthenticationFilter(
             if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(prefix = TOKEN_PREFIX)) {
                 val jwt: String = bearerToken.substring(startIndex = 7)
                 tokenProvider.validateToken(token = jwt)
-                val userName: String = tokenProvider.getUserNameFromJWT(token = jwt)
-                val userDetails: UserDetails = userService.loadUserByUsername(username = userName)
+                val emailFromJWT: String = tokenProvider.getEmailFromJWT(token = jwt)
+                val userDetails: UserDetails = userService.loadUserByUsername(email = emailFromJWT)
                 UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                     .also { it.details = WebAuthenticationDetailsSource().buildDetails(request) }
                     .also { authenticationManager.authenticate(it) }
@@ -63,7 +63,7 @@ class JwtAuthenticationFilter(
             response.writer.write(objectMapper.writeValueAsString(responseEntity.body))
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = "application/json"
-            log.error("Could not set user authentication in security context. Error: {}", ExceptionUtils.getMessage(ex))
+            log.error("Could not set user authentication in security context. Error: ${ex.message}")
             return
         }
         response.setHeader("Access-Control-Allow-Origin", "*")

@@ -74,7 +74,7 @@ object AppConstants {
     }
 
     // marker interface and related extension (remove extension for Any.logger() in favour of this)
-    interface Loggable {}
+    interface Loggable
     fun Loggable.logger(): Logger = logger(this.javaClass)
 
     // abstract base class to provide logging, intended for companion objects more than classes but works for either

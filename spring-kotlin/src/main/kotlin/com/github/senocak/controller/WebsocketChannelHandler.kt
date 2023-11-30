@@ -36,7 +36,7 @@ class WebsocketChannelHandler(
      * A method that is called when a new WebSocket session is created.
      * @param session The new WebSocket session.
      */
-    override fun afterConnectionEstablished(session: WebSocketSession) =
+    override fun afterConnectionEstablished(session: WebSocketSession): Unit =
         lock.withLock {
             try {
                 if (session.uri == null)
@@ -44,11 +44,10 @@ class WebsocketChannelHandler(
                 val headers: HttpHeaders = session.handshakeHeaders
                 if (!headers.containsKey("Authorization"))
                     log.error("Token not found; rejecting!").also { return }
-                val (userNameFromJWT: String, token: String) = getUserNameFromJWT(headers = headers)
-                val websocketIdentifier = WebsocketIdentifier(user = userNameFromJWT, token = token)
-                websocketIdentifier.session = session
-                webSocketCacheService.put(data = websocketIdentifier)
-                log.info("Websocket session established: {}", websocketIdentifier)
+                val (emailFromJWT: String, token: String) = getEmailFromJWT(headers = headers)
+                WebsocketIdentifier(email = emailFromJWT, token = token, session = session)
+                    .also { log.info("Websocket session established: $it") }
+                    .run { webSocketCacheService.put(data = this) }
             } catch (ex: Throwable) {
                 log.error("A serious error has occurred with websocket post-connection handling. Exception is: ${ex.message}")
             }
@@ -59,7 +58,7 @@ class WebsocketChannelHandler(
      * @param session The WebSocket session that is closed.
      * @param status The status of the close.
      */
-    override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) =
+    override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus): Unit =
         lock.withLock {
             try {
                 if (session.uri == null)
@@ -67,9 +66,9 @@ class WebsocketChannelHandler(
                 val headers: HttpHeaders = session.handshakeHeaders
                 if (!headers.containsKey("Authorization"))
                     log.error("Token not found; rejecting!").also { return }
-                val (userNameFromJWT: String, _: String) = getUserNameFromJWT(headers = headers)
-                webSocketCacheService.deleteSession(key = userNameFromJWT)
-                    .also { log.debug("Websocket for $userNameFromJWT has been closed") }
+                val (emailFromJWT: String, _: String) = getEmailFromJWT(headers = headers)
+                webSocketCacheService.deleteSession(key = emailFromJWT)
+                    .also { log.debug("Websocket for $emailFromJWT has been closed") }
             } catch (ex: Throwable) {
                 log.error("Error occurred while closing websocket channel:${ex.message}")
             }
@@ -85,15 +84,16 @@ class WebsocketChannelHandler(
                 log.trace("TextMessage: $body")
                 try {
                     val requestBody: WsRequestBody = objectMapper.readValue(message.payload, WsRequestBody::class.java)
-                    val (userNameFromJWT: String, _: String) = getUserNameFromJWT(headers = session.handshakeHeaders)
-                    requestBody.from = userNameFromJWT
+                    val (emailFromJWT: String, _: String) = getEmailFromJWT(headers = session.handshakeHeaders)
+                    requestBody.from = emailFromJWT
                     webSocketCacheService.sendPrivateMessage(requestBody = requestBody)
                     log.info("Websocket message sent: ${message.payload}")
                 } catch (ex: Exception) {
                     log.error("Unable to parse request body; Exception: ${ex.message}")
                 }
             }
-            else -> session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Not supported")).also { log.error("InvalidMessage") }
+            else -> session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Not supported"))
+                .also { log.error("Not supported. ${message.javaClass}") }
         }
     }
 
@@ -101,7 +101,7 @@ class WebsocketChannelHandler(
 
     override fun supportsPartialMessages(): Boolean = true
 
-    private fun getUserNameFromJWT(headers: HttpHeaders): Pair<String, String> =
+    private fun getEmailFromJWT(headers: HttpHeaders): Pair<String, String> =
         headers["Authorization"]
             .run {
                 return when {
@@ -109,7 +109,7 @@ class WebsocketChannelHandler(
                         var first: String = this.first()
                         if (first.startsWith("Bearer "))
                             first = first.substring(startIndex = 7)
-                        Pair(first = jwtTokenProvider.getUserNameFromJWT(token = first), second = first)
+                        Pair(first = jwtTokenProvider.getEmailFromJWT(token = first), second = first)
                     }
                     else -> throw ServerException(omaErrorMessageType = OmaErrorMessageType.GENERIC_SERVICE_ERROR,
                         variables = arrayOf("token is invalid"), statusCode = HttpStatus.INTERNAL_SERVER_ERROR)

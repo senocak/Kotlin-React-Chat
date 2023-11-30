@@ -16,9 +16,9 @@ class AuthenticationService {
     var authorizationFailed = "Authentication error"
 
     /**
-     * Getting username from the security context
+     * Getting email from the security context
      * @param aInRoles -- roles that user must have
-     * @return  -- username or null
+     * @return  -- email or null
      * @throws AccessDeniedException -- if user does not have required roles
      */
     @Throws(AccessDeniedException::class)

@@ -73,8 +73,8 @@ class AuthController(
         resultOfValidation: BindingResult
     ): UserWrapperResponse =
         validate(resultOfValidation = resultOfValidation)
-            .run { authenticationManager.authenticate(UsernamePasswordAuthenticationToken(loginRequest.username, loginRequest.password)) }
-            .run { userService.findByUsername(username = loginRequest.username!!) }
+            .run { authenticationManager.authenticate(UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)) }
+            .run { userService.findByEmail(email = loginRequest.email) }
             .run {
                 this.convertEntityToDto(
                     roles = true,
@@ -103,13 +103,6 @@ class AuthController(
         resultOfValidation: BindingResult
     ): ResponseEntity<UserWrapperResponse> {
         validate(resultOfValidation = resultOfValidation)
-        if (userService.existsByUsername(username = signUpRequest.username))
-            "Username: ${signUpRequest.username} is already taken!"
-                .also { log.error(it) }
-                .run {
-                    throw ServerException(omaErrorMessageType = OmaErrorMessageType.JSON_SCHEMA_VALIDATOR,
-                        variables = arrayOf(this))
-                }
         if (userService.existsByEmail(email = signUpRequest.email))
             "Email Address: ${signUpRequest.email} is already taken!"
                 .also { log.error(it) }
@@ -124,12 +117,12 @@ class AuthController(
                         throw ServerException(omaErrorMessageType = OmaErrorMessageType.MANDATORY_INPUT_MISSING,
                             variables = arrayOf(this))
                     }
-        val user: User = User(name = signUpRequest.name, username = signUpRequest.username, email = signUpRequest.email,
+        val user: User = User(name = signUpRequest.name, email = signUpRequest.email,
             password = passwordEncoder.encode(signUpRequest.password), roles = arrayListOf(userRole))
             .run { userService.save(user = this) }
             .also { log.info("User created. User: $it") }
         try {
-            return login(loginRequest = LoginRequest(username = user.username, password = signUpRequest.password), resultOfValidation = resultOfValidation)
+            return login(loginRequest = LoginRequest(email = user.email, password = signUpRequest.password), resultOfValidation = resultOfValidation)
                 .run {
                     ResponseEntity.status(HttpStatus.CREATED).body(this)
                 }
@@ -169,9 +162,9 @@ class AuthController(
                     throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
                         variables = arrayOf(this), statusCode = HttpStatus.BAD_REQUEST)
                 }
-        return tokenProvider.getUserNameFromJWT(token = refreshTokenRequest.token)
-            .run { userService.findByUsername(username = this) }
-            .also { tokenProvider.markLogoutEventForToken(username = it.username) }
+        return tokenProvider.getEmailFromJWT(token = refreshTokenRequest.token)
+            .run { userService.findByEmail(email = this) }
+            .also { tokenProvider.markLogoutEventForToken(email = it.email) }
             .run {
                 this.convertEntityToDto(
                     roles = true,
@@ -200,7 +193,7 @@ class AuthController(
     @Throws(ServerException::class)
     fun logout(request: HttpServletRequest): ResponseEntity<Unit> =
         userService.loggedInUser
-            .run { tokenProvider.markLogoutEventForToken(username = this.username) }
+            .run { tokenProvider.markLogoutEventForToken(email = this.email) }
             .run { ResponseEntity.noContent().build() }
 
     /**
@@ -210,8 +203,8 @@ class AuthController(
      */
     private fun generateUserWrapperResponse(userResponse: UserResponse): UserWrapperResponse {
         val roles: List<String> = userResponse.roles?.map { RoleName.fromString(r = it.name.name)!!.name }!!.toList()
-        val jwtToken: String = tokenProvider.generateJwtToken(username = userResponse.username, roles = roles)
-        val refreshToken: String = tokenProvider.generateRefreshToken(username = userResponse.username, roles = roles)
+        val jwtToken: String = tokenProvider.generateJwtToken(email = userResponse.email, roles = roles)
+        val refreshToken: String = tokenProvider.generateRefreshToken(email = userResponse.email, roles = roles)
         return UserWrapperResponse(userResponse = userResponse, token = jwtToken, refreshToken = refreshToken)
             .also { log.info("UserWrapperResponse is generated: $it") }
     }

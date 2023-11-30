@@ -18,7 +18,7 @@ class JwtAuthenticationEntryPoint(val objectMapper: ObjectMapper) : Authenticati
 
     @Throws(IOException::class)
     override fun commence(request: HttpServletRequest, response: HttpServletResponse, ex: AuthenticationException) {
-        log.error("Responding with unauthorized error. Message - {}", ex.message)
+        log.error("Responding with unauthorized error. Message - ${ex.message}")
         val responseEntity: ResponseEntity<Any> = RestExceptionHandler().handleUnAuthorized(ex = RuntimeException(ex.message))
         response.writer.write(objectMapper.writeValueAsString(responseEntity.body))
         response.status = HttpServletResponse.SC_UNAUTHORIZED

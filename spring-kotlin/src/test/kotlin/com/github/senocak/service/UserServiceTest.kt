@@ -28,33 +28,6 @@ class UserServiceTest {
     private var user = Mockito.mock(org.springframework.security.core.userdetails.User::class.java)
 
     @Test
-    fun givenUsername_whenFindByUsername_thenAssertResult() {
-        // Given
-        val user: User = createUser()
-        Mockito.doReturn(Optional.of<Any>(user)).`when`(userRepository).findByUsername("username")
-        // When
-        val findByUsername: User? = userService.findByUsername("username")
-        // Then
-        Assertions.assertEquals(user, findByUsername)
-    }
-
-    @Test
-    fun givenNullUsername_whenFindByUsername_thenAssertResult() {
-        // When
-        val closureToTest = Executable { userService.findByUsername("username") }
-        // Then
-        Assertions.assertThrows(UsernameNotFoundException::class.java, closureToTest)
-    }
-
-    @Test
-    fun givenUsername_whenExistsByUsername_thenAssertResult() {
-        // When
-        val existsByUsername = userService.existsByUsername("username")
-        // Then
-        Assertions.assertFalse(existsByUsername)
-    }
-
-    @Test
     fun givenUsername_whenExistsByEmail_thenAssertResult() {
         // When
         val existsByEmail = userService.existsByEmail("username")
@@ -119,7 +92,7 @@ class UserServiceTest {
         // When
         val loadUserByUsername = userService.loadUserByUsername("username")
         // Then
-        Assertions.assertEquals(user.username, loadUserByUsername.username)
+        Assertions.assertEquals(user.email, loadUserByUsername.username)
     }
 
     @Test
@@ -146,6 +119,6 @@ class UserServiceTest {
         // When
         val loggedInUser: User = userService.loggedInUser
         // Then
-        Assertions.assertEquals(user.username, loggedInUser.username)
+        Assertions.assertEquals(user.email, loggedInUser.email)
     }
 }

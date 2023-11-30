@@ -35,12 +35,12 @@ class JwtTokenProvider(
 
     /**
      * Generating the jwt token
-     * @param username -- userName
+     * @param email -- email
      */
-    fun generateJwtToken(username: String, roles: List<String?>): String =
-        generateToken(subject = username, roles = roles, expirationInMs = jwtExpirationInMs.toLong())
+    fun generateJwtToken(email: String, roles: List<String?>): String =
+        generateToken(subject = email, roles = roles, expirationInMs = jwtExpirationInMs.toLong())
             .run {
-                UserInfoCache(username = username, token = this, type = "jwt", expireTimeStamp = jwtExpirationInMs.toLong())
+                UserInfoCache(email = email, token = this, type = "jwt", expireTimeStamp = jwtExpirationInMs.toLong())
                     .also { userInfoCache: UserInfoCache ->
                         tokenEventMap.put(this, userInfoCache, jwtExpirationInMs.toLong(), TimeUnit.MILLISECONDS)
                     }
@@ -49,12 +49,12 @@ class JwtTokenProvider(
 
     /**
      * Generating the refresh token
-     * @param username -- userName
+     * @param email -- email
      */
-    fun generateRefreshToken(username: String, roles: List<String?>): String =
-        generateToken(subject = username, roles = roles, expirationInMs = refreshExpirationInMs.toLong())
+    fun generateRefreshToken(email: String, roles: List<String?>): String =
+        generateToken(subject = email, roles = roles, expirationInMs = refreshExpirationInMs.toLong())
             .run {
-                UserInfoCache(username = username, token = this, type = "refresh", expireTimeStamp = refreshExpirationInMs.toLong())
+                UserInfoCache(email = email, token = this, type = "refresh", expireTimeStamp = refreshExpirationInMs.toLong())
                 .also { userInfoCache: UserInfoCache ->
                     tokenEventMap.put(this, userInfoCache, refreshExpirationInMs.toLong(), TimeUnit.MILLISECONDS)
                 }
@@ -63,7 +63,7 @@ class JwtTokenProvider(
 
     /**
      * Generating the token
-     * @param subject -- userName
+     * @param subject -- email
      */
     private fun generateToken(subject: String, roles: List<String?>, expirationInMs: Long): String =
         HashMap<String, Any>()
@@ -91,9 +91,9 @@ class JwtTokenProvider(
 
     /**
      * @param token -- jwt token
-     * @return -- userName from jwt
+     * @return -- email from jwt
      */
-    fun getUserNameFromJWT(token: String): String = getJwsClaims(token = token).body!!.subject
+    fun getEmailFromJWT(token: String): String = getJwsClaims(token = token).body!!.subject
 
     /**
      * @param token -- jwt token
@@ -121,9 +121,9 @@ class JwtTokenProvider(
         }
     }
 
-    fun markLogoutEventForToken(username: String) {
+    fun markLogoutEventForToken(email: String) {
         tokenEventMap
-            .filter { it.value.username == username }
+            .filter { it.value.email == email }
             .forEach {
                 run {
                     if (tokenEventMap.containsKey(it.key)) {
@@ -131,6 +131,6 @@ class JwtTokenProvider(
                     }
                 }
             }
-        log.debug("Logged out. Tokens for user $username removed in the cache")
+        log.debug("Logged out. Tokens for user $email removed in the cache")
     }
 }

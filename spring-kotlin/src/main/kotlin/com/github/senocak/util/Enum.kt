@@ -30,9 +30,17 @@ enum class OmaErrorMessageType(val messageId: String, val text: String) {
 }
 
 enum class WsType {
-    Online, Offline, PrivateMessage
+    Online,
+    Offline,
+    PrivateMessage,
+    FriendShipPending,
+    FriendShipAccepted,
+    FriendShipBlocked,
+    FriendShipUnBlocked,
+    FriendShipDeleted
 }
 
 enum class FriendShipStatus {
-    Pending, Accepted
+    Pending,
+    Accepted
 }

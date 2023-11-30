@@ -17,8 +17,7 @@ import org.springframework.util.StringUtils
 fun User.convertEntityToDto(roles: Boolean = false, friends: List<UserFriends>? = null): UserResponse =
     UserResponse(
         name = this.name,
-        email = this.email,
-        username = this.username
+        email = this.email
     ).also {
         when {
             roles -> it.roles = this.roles.map { r: Role -> r.convertEntityToDto() }.toList()

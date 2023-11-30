@@ -35,13 +35,11 @@ open class BaseDomain(
 
 @Entity
 @Table(name = "users", uniqueConstraints = [
-    UniqueConstraint(columnNames = ["username"]),
     UniqueConstraint(columnNames = ["email"])
 ])
 @DynamicUpdate // TODO https://twitter.com/NiestrojRobert/status/1711280585111716218
 class User(
     @Column var name: String,
-    @Column var username: String,
     @Column var email: String,
     @Column var password: String?,
 
@@ -58,10 +56,9 @@ class User(
 class Role(@Column @Enumerated(EnumType.STRING) var name: RoleName? = null) : BaseDomain()
 
 @Entity
-@Table(
-    name = "friends",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["owner_id", "person_id", "status"])]
-)
+@Table(name = "friends", uniqueConstraints = [
+    UniqueConstraint(columnNames = ["owner_id", "person_id", "status"])
+])
 class Friend(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -117,7 +114,7 @@ class Message(
     )
     var to: User,
 
-    @Column(nullable = false) var text: String? = null,
+    @Column var text: String? = null,
     @Column @Lob var binary: String? = null,
     @Column var readAt: Date? = null
 ) : BaseDomain()

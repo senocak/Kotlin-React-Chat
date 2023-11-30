@@ -35,19 +35,6 @@ class UserService(
         userRepository.findById(id).orElseThrow { UsernameNotFoundException("User not found with id") }
 
     /**
-     * @param username -- string username to find in db
-     * @return -- Optional User object
-     */
-    fun findByUsername(username: String): User =
-        userRepository.findByUsername(username = username) ?: throw UsernameNotFoundException("User not found with email")
-
-    /**
-     * @param username -- string username to find in db
-     * @return -- Optional User object
-     */
-    fun existsByUsername(username: String): Boolean = userRepository.existsByUsername(username = username)
-
-    /**
      * @param email -- string email to find in db
      * @return -- true or false
      */
@@ -69,17 +56,17 @@ class UserService(
     fun save(user: User): User = userRepository.save(user)
 
     /**
-     * @param username -- username
+     * @param email -- email
      * @return -- Spring User object
      */
     @Transactional
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(username: String): org.springframework.security.core.userdetails.User {
-        val user: User = findByUsername(username = username)
+    override fun loadUserByUsername(email: String): org.springframework.security.core.userdetails.User {
+        val user: User = findByEmail(email = email)
         val authorities: List<GrantedAuthority> = user.roles.stream()
             .map { SimpleGrantedAuthority(RoleName.fromString(r = it.name.toString())!!.name) }
             .toList()
-        return org.springframework.security.core.userdetails.User(user.username, user.password, authorities)
+        return org.springframework.security.core.userdetails.User(user.email, user.password, authorities)
     }
 
     /**
@@ -88,10 +75,7 @@ class UserService(
     val loggedInUser: User
         get() =
             (SecurityContextHolder.getContext().authentication.principal as org.springframework.security.core.userdetails.User).username
-                .run { findByUsername(username = this)  }
-
-    //fun findMessagesBetweenUsers(q: String? = null, from: User, to: User, page: Pageable): Page<Message> =
-    //    messageRepository.findMessagesBetweenUsers(user1 = from, user2 = to, page = page)
+                .run { findByEmail(email = this)  }
 
     fun findAll(specification: Specification<Message>, pageRequest: Pageable): Page<Message> =
         messageRepository.findAll(specification, pageRequest)

@@ -59,7 +59,7 @@ class AuthControllerTest {
         private val loginRequest: LoginRequest = LoginRequest()
         @BeforeEach
         fun setup() {
-            loginRequest.username = USER_NAME
+            loginRequest.email = USER_NAME
             loginRequest.password = USER_PASSWORD
         }
 
@@ -68,8 +68,8 @@ class AuthControllerTest {
         fun givenSuccessfulPath_whenLogin_thenReturn200() {
             // Given
             `when`(authenticationManager.authenticate(UsernamePasswordAuthenticationToken(
-                loginRequest.username, loginRequest.password))).thenReturn(authentication)
-            `when`(userService.findByUsername(loginRequest.username!!)).thenReturn(user)
+                loginRequest.email, loginRequest.password))).thenReturn(authentication)
+            `when`(userService.findByUsername(loginRequest.email!!)).thenReturn(user)
             val generatedToken = "generatedToken"
             `when`(tokenProvider.generateJwtToken(eq(user.username), anyList())).thenReturn(generatedToken)
             // When

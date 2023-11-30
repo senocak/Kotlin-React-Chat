@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.senocak.domain.dto.WebsocketIdentifier
 import com.github.senocak.domain.dto.WsRequestBody
 import com.github.senocak.util.WsType
-import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,9 +29,9 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
      * @param data websocket session cache.
      */
     fun put(data: WebsocketIdentifier) {
-        userSessionCache[data.user] = data
-        broadCastMessage(message = data.user, type = WsType.Online)
-        broadCastAllUserList(user = data.user)
+        userSessionCache[data.email] = data
+        broadCastMessage(message = data.email, type = WsType.Online)
+        broadCastAllUserList(user = data.email)
     }
 
     /**
@@ -53,8 +52,8 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
             return
         }
         userSessionCache.remove(key = key)
-        broadCastAllUserList(user = websocketIdentifier.user)
-        broadCastMessage(message = websocketIdentifier.user, type = WsType.Offline)
+        broadCastAllUserList(user = websocketIdentifier.email)
+        broadCastMessage(message = websocketIdentifier.email, type = WsType.Offline)
     }
 
     /**
@@ -62,15 +61,15 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
      * @param message message to broadcast.
      */
     private fun broadCastMessage(message: String, type: WsType) {
-        val wsRequestBody: WsRequestBody = WsRequestBody()
-            .also {
-                it.content = message
-                it.date = Instant.now().toEpochMilli()
-                it.type = type
-            }
+        val wsRequestBody: WsRequestBody = WsRequestBody(
+            from = "server",
+            to = null,
+            date = Instant.now().toEpochMilli(),
+            type = type
+        ).also { it.content = message }
         allWebSocketSession.forEach {
             try {
-                it.value.session!!.sendMessage(TextMessage(objectMapper.writeValueAsString(wsRequestBody)))
+                it.value.session.sendMessage(TextMessage(objectMapper.writeValueAsString(wsRequestBody)))
             } catch (e: Exception) {
                 log.error("Exception while broadcasting: ${e.message}")
             }
@@ -90,7 +89,7 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
         requestBody.type = WsType.PrivateMessage
         requestBody.date = Instant.now().toEpochMilli()
         try {
-            userTo.session!!.sendMessage(TextMessage(objectMapper.writeValueAsString(requestBody)))
+            userTo.session.sendMessage(TextMessage(objectMapper.writeValueAsString(requestBody)))
         } catch (e: IOException) {
             log.error("Exception while sending message: ${ExceptionUtils.getMessage(e)}")
         }
@@ -101,22 +100,20 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
      * @param from from user.
      * @param payload message to send.
      */
-    fun sendMessage(from: String?, to: String, type: WsType?, payload: String?) {
+    fun sendMessage(from: String, to: String, type: WsType, payload: String? = null) {
         val userTo: WebsocketIdentifier? = getOrNull(key = to)
         if (userTo?.session == null) {
             log.error("User or Session not found in cache for user: $to, returning...")
             return
         }
-        val requestBody: WsRequestBody = WsRequestBody()
-            .also {
-                it.from = from
-                it.to = to
-                it.date = Instant.now().toEpochMilli()
-                it.content = payload
-                it.type = type
-            }
+        val requestBody: WsRequestBody = WsRequestBody(
+            from = from,
+            to = to,
+            type = type,
+            date = Instant.now().toEpochMilli()
+        ).also { it.content = payload }
         try {
-            userTo.session!!.sendMessage(TextMessage(objectMapper.writeValueAsString(requestBody)))
+            userTo.session.sendMessage(TextMessage(objectMapper.writeValueAsString(requestBody)))
         } catch (e: IOException) {
             log.error("Exception while sending message: ${ExceptionUtils.getMessage(e)}")
         }
@@ -127,5 +124,5 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
      * @param user user to broadcast.
      */
     private fun broadCastAllUserList(user: String): Unit =
-        sendMessage(from = "server", to = user, type = WsType.Online, payload = StringUtils.join(userSessionCache.keys, ','))
+        sendMessage(from = "server", to = user, type = WsType.Online, payload = userSessionCache.keys.joinToString(separator = ","))
 }

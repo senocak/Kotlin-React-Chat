@@ -1,5 +1,7 @@
 package com.github.senocak.domain.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -7,9 +9,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 
-class Logger(
+@JsonIgnoreProperties(ignoreUnknown = false)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+abstract class BaseDto
+
+data class Logger(
     @Schema(example = "debug", description = "Level of the log", required = true, name = "level", type = "String")
-    var level: String? = null
+    var level: String
 ): BaseDto()
 
 @JsonPropertyOrder("statusCode", "error", "variables")

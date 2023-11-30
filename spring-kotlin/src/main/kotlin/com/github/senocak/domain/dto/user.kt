@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Size
 import org.springframework.context.ApplicationEvent
 
-@JsonPropertyOrder("name", "username", "email", "roles")
+@JsonPropertyOrder("name", "email", "roles")
 data class UserResponse(
     @JsonProperty("name")
     @Schema(example = "Lorem Ipsum", description = "Name of the user", required = true, name = "name", type = "String")
@@ -17,9 +17,6 @@ data class UserResponse(
 
     @Schema(example = "lorem@ipsum.com", description = "Email of the user", required = true, name = "email", type = "String")
     var email: String,
-
-    @Schema(example = "asenocak", description = "Username of the user", required = true, name = "username", type = "String")
-    var username: String,
 
     @ArraySchema
     var roles: List<RoleResponse>? = null,
@@ -58,23 +55,23 @@ data class UpdateUserDto(
 ): BaseDto()
 
 data class UserInfoCache(
-    val username: String,
+    val email: String,
     val token: String,
     val type: String,
     val expireTimeStamp: Long
-) : ApplicationEvent(username)
+) : ApplicationEvent(email)
 
 data class UserFriends(
-    @Schema(example = "asenocak", description = "Username of the user", required = true, name = "status", type = "String")
+    @Schema(required = true)
     var status: FriendShipStatus,
 
-    @ArraySchema
+    @Schema(required = true)
     var person: UserResponse,
 
-    @ArraySchema
+    @Schema(required = true)
     var owner: UserResponse
 ): BaseDto() {
-    @ArraySchema
+    @Schema(required = true)
     var blockedBy: UserResponse? = null
 
     @Schema(example = "31132132", description = "Approved timestamp", required = true, name = "approvedAt", type = "Long")

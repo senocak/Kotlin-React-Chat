@@ -13,6 +13,7 @@ import com.github.senocak.exception.ServerException
 import com.github.senocak.security.Authorize
 import com.github.senocak.service.FriendService
 import com.github.senocak.service.UserService
+import com.github.senocak.service.WebSocketCacheService
 import com.github.senocak.util.convertEntityToDto
 import com.github.senocak.util.AppConstants.ADMIN
 import com.github.senocak.util.AppConstants.USER
@@ -20,6 +21,7 @@ import com.github.senocak.util.AppConstants.securitySchemeName
 import com.github.senocak.util.FriendShipStatus
 import com.github.senocak.util.OmaErrorMessageType
 import com.github.senocak.util.PageRequestBuilder
+import com.github.senocak.util.WsType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -55,7 +57,8 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder,
-    private val friendService: FriendService
+    private val friendService: FriendService,
+    private val webSocketCacheService: WebSocketCacheService
 ): BaseController() {
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -77,7 +80,7 @@ class UserController(
 
     @PatchMapping("/me")
     @Operation(
-        summary = "Update user by username",
+        summary = "Update user",
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
@@ -177,6 +180,7 @@ class UserController(
                         friend.status = FriendShipStatus.Accepted
                         friend.approvedAt = Date(System.currentTimeMillis())
                         friendService.save(friend = friend)
+                        webSocketCacheService.sendMessage(from = me.email, to = friend.owner.email, type = WsType.FriendShipAccepted)
                     }
                 } else {
                     "Unsupported status: ${friend.status} for ${me.email}"
@@ -189,8 +193,9 @@ class UserController(
             }
             else -> {
                 friendService.save(friend = Friend(owner = me, person = person, status = FriendShipStatus.Pending))
+                    .also { friendList.add(element = it) }
                     .run {
-                        friendList.add(element = this)
+                        webSocketCacheService.sendMessage(from = me.email, to = this.person.email, type = WsType.FriendShipPending)
                     }
             }
         }
@@ -240,6 +245,10 @@ class UserController(
         friendService.delete(friend = friend)
             .also { log.info("User: ${me.email} friend with ${person.email} is deleted") }
             .also { friendList.remove(element = friend) }
+            .also {
+                val to: User = if (friend.owner == me) friend.person else friend.owner
+                webSocketCacheService.sendMessage(from = me.email, to = to.email, type = WsType.FriendShipDeleted)
+            }
         return me.convertEntityToDto(roles = true, friends = friendList.map { f: Friend -> f.convertEntityToDto() })
     }
 
@@ -294,6 +303,8 @@ class UserController(
                         friend.blockedBy = me
                         friend.blockedAt = Date(System.currentTimeMillis())
                         friendService.save(friend = friend)
+                        val to: User = if (friend.owner == me) friend.person else friend.owner
+                        webSocketCacheService.sendMessage(from = me.email, to = to.email, type = WsType.FriendShipBlocked)
                     }
                 }
             }
@@ -311,6 +322,8 @@ class UserController(
                                 friend.blockedBy = null
                                 friend.blockedAt = null
                                 friendService.save(friend = friend)
+                                val to: User = if (friend.owner == me) friend.person else friend.owner
+                                webSocketCacheService.sendMessage(from = me.email, to = to.email, type = WsType.FriendShipUnBlocked)
                             }
                             else -> {
                                 "You are not unauthorized to unblock ${person.email}"

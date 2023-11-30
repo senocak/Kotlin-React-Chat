@@ -17,8 +17,6 @@ interface RoleRepository: PagingAndSortingRepository<Role, UUID>, CrudRepository
 
 interface UserRepository: PagingAndSortingRepository<User, UUID>, CrudRepository<User, UUID> {
     fun findByEmail(email: String?): User?
-    fun findByUsername(username: String?): User?
-    fun existsByUsername(username: String?): Boolean
     fun existsByEmail(email: String?): Boolean
 }
 

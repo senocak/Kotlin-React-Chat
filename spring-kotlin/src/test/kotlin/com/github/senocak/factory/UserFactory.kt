@@ -16,7 +16,7 @@ object UserFactory {
      * @return the new user
      */
     fun createUser(): User =
-        User(name = USER_NAME, username = USER_USERNAME, email = USER_EMAIL, password = USER_PASSWORD,
+        User(name = USER_NAME, email = USER_EMAIL, password = USER_PASSWORD,
             roles = listOf(createRole(RoleName.ROLE_USER), createRole(RoleName.ROLE_ADMIN)))
 
     /**
