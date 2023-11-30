@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import App from "./App"
 import {generateRandom} from "../utils"
 import Captcha from "./Captcha"
 import { useAppDispatch, useAppSelector } from '../store'
@@ -14,21 +13,21 @@ function Login(): React.JSX.Element {
     const navigate: NavigateFunction = useNavigate()
     const loginSlice: IState<ILoginResponse> = useAppSelector(state => state.login)
 
-    const [enteredVal, setEnteredVal] = useState<string>("")
     const [text, setText] = useState<string>(generateRandom())
+    const [enteredVal, setEnteredVal] = useState<string>(text)
     const handleSubmit = (e: any): void => {
         e.preventDefault()
-        const usernameVal = e.target[0].value.trim()
+        const emailVal = e.target[0].value.trim()
         const passwordVal = e.target[1].value.trim()
-        if (!usernameVal || !passwordVal) {
+        if (!emailVal || !passwordVal) {
             alert("Email ve şifre boş olamaz")
             return
         }
         if (enteredVal.toUpperCase() !== text.toUpperCase()) {
             setEnteredVal("")
-            //alert("Captcha not valid")
+            alert("Captcha not valid")
         }
-        dispatch(fetchLogin({username: usernameVal, password: passwordVal}))
+        dispatch(fetchLogin({email: emailVal, password: passwordVal}))
         e.target[0].value = ''
         e.target[1].value = ''
         return
@@ -39,11 +38,9 @@ function Login(): React.JSX.Element {
             navigate('/profile')
         }
     }, [loginSlice, dispatch, navigate])
-    return <>
-        <App/>
-        <form onSubmit={handleSubmit} style={{maxWidth: '75%', textAlign: 'center', paddingLeft: '25%'}} >
-            <input type="text" placeholder="Username" className="input" required autoFocus disabled={loginSlice.isLoading} value="asenocakAdmin"/>
-            <input type="password" placeholder="***" className="input" required disabled={loginSlice.isLoading} value="asenocak"/>
+    return <form onSubmit={handleSubmit}>
+            <input type="text" placeholder="Username" required autoFocus disabled={loginSlice.isLoading} value="anil1@senocak.com"/>
+            <input type="password" placeholder="***" required disabled={loginSlice.isLoading} value="asenocak"/>
             <Captcha
                 text={text}
                 width={100}
@@ -53,14 +50,13 @@ function Login(): React.JSX.Element {
                     setText(generateRandom())
                     setEnteredVal("")
                 }}/>
-            <input type="text" placeholder="Captcha"className='input' required value={text}
+            <input type="text" placeholder="Captcha" required value={text}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {setEnteredVal(e.target.value)}}
                 disabled={loginSlice.isLoading}/>
-            <button className="input" disabled={loginSlice.isLoading}>
+            <button disabled={loginSlice.isLoading}>
                 Giriş Yap
                 <i className="fas fa-spinner fa-pulse" style={{visibility: loginSlice.isLoading ? 'visible': 'hidden'}}></i>
             </button>
         </form>
-    </>
 }
 export default Login

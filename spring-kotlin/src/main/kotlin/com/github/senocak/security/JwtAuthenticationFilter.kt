@@ -5,7 +5,6 @@ import com.github.senocak.service.UserService
 import com.github.senocak.util.AppConstants.TOKEN_HEADER_NAME
 import com.github.senocak.util.AppConstants.TOKEN_PREFIX
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
-import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import jakarta.servlet.FilterChain
@@ -47,8 +45,8 @@ class JwtAuthenticationFilter(
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         try {
-            val bearerToken = request.getHeader(TOKEN_HEADER_NAME)
-            if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(prefix = TOKEN_PREFIX)) {
+            val bearerToken: String? = request.getHeader(TOKEN_HEADER_NAME)
+            if (!bearerToken.isNullOrEmpty() && bearerToken.startsWith(prefix = TOKEN_PREFIX)) {
                 val jwt: String = bearerToken.substring(startIndex = 7)
                 tokenProvider.validateToken(token = jwt)
                 val emailFromJWT: String = tokenProvider.getEmailFromJWT(token = jwt)

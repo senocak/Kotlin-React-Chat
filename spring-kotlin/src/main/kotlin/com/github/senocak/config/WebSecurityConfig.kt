@@ -20,19 +20,11 @@ class WebSecurityConfig(
     private val unauthorizedHandler: JwtAuthenticationEntryPoint,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
 ) {
-    // FIXME: not working
-    //@Bean
-    fun refreshTokenRegistrationBean(): FilterRegistrationBean<JwtAuthenticationFilter> =
-        FilterRegistrationBean<JwtAuthenticationFilter>().apply {
-            filter = jwtAuthenticationFilter
-            addUrlPatterns("/api/v1/user/")
-            order = 1
-        }
 
     @Bean
     fun securityFilterChainDSL(http: HttpSecurity): SecurityFilterChain {
         http {
-            cors { disable() }
+            cors {}
             csrf { disable() }
             exceptionHandling { authenticationEntryPoint = unauthorizedHandler }
             //httpBasic {}
@@ -56,14 +48,13 @@ class WebSecurityConfig(
         http
             .cors { it.disable() }
             .csrf { it.disable() }
-            .exceptionHandling {
-                it.authenticationEntryPoint(unauthorizedHandler)
-            }
+            .exceptionHandling { it.authenticationEntryPoint(unauthorizedHandler) }
             .authorizeHttpRequests {
                 it
                     .requestMatchers(AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
                     .requestMatchers(AntPathRequestMatcher("/api/v1/swagger/**")).permitAll()
                     .requestMatchers(AntPathRequestMatcher("/swagger**/**")).permitAll()
+                    .requestMatchers(AntPathRequestMatcher("/ws**/**")).permitAll()
                     .requestMatchers(AntPathRequestMatcher("/h2-console**/**")).permitAll()
                     .anyRequest().authenticated()
             }

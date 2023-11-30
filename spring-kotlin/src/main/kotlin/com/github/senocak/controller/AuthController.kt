@@ -172,9 +172,7 @@ class AuthController(
                         .map { f: Friend -> f.convertEntityToDto() }
                 )
             }
-            .run {
-                generateUserWrapperResponse(userResponse = this)
-            }
+            .run { generateUserWrapperResponse(userResponse = this) }
     }
 
     @PostMapping("/logout")

@@ -41,7 +41,6 @@ export default class AuthApiClient extends AbstractHttpClient {
             await this._removeTokensFromStorage()
             history.push('/login')
         }
-
         return Promise.reject(error)
     }
 
@@ -55,8 +54,10 @@ export default class AuthApiClient extends AbstractHttpClient {
         return this.classInstance
     }
 
-    public login = async (params: ILoginParams) =>
-        await this.instance.post('/auth/login', params)
+    public login = async (params: ILoginParams) => {
+        this.instance.interceptors.request.clear()
+        return await this.instance.post('/auth/login', params)
+    }
 
     /**
      * Refresh token.

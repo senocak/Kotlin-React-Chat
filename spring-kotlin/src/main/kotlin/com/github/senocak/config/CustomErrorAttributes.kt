@@ -28,9 +28,7 @@ class CustomErrorAttributes : DefaultErrorAttributes() {
             exceptionDto.error = ExceptionDto.OmaErrorMessageTypeDto(omaErrorMessageType.messageId, omaErrorMessageType.text)
         }
         return HashMap<String, Any>()
-                .also {
-                    it["exception"] = exceptionDto
-                }
+                .also { it["exception"] = exceptionDto }
                 .also { log.debug("Exception occurred in DefaultErrorAttributes: $it") }
     }
 }

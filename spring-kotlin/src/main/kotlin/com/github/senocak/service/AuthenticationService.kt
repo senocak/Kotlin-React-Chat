@@ -6,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Service
 import java.nio.file.AccessDeniedException
-import java.util.Objects
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
@@ -25,16 +24,24 @@ class AuthenticationService {
     fun isAuthorized(aInRoles: Array<String>): Boolean {
         val getPrinciple: User = getPrinciple()
             ?: throw AccessDeniedException(authorizationFailed)
-                .also { log.warn("AccessDeniedException occurred") }
+                .also { log.error("AccessDeniedException occurred: SecurityContext is null") }
         try {
-            for (role: String in aInRoles) {
-                for (authority: GrantedAuthority in getPrinciple.authorities) {
+
+            aInRoles.forEach { role: String ->
+                getPrinciple.authorities.forEach {authority: GrantedAuthority ->
                     if (authority.authority == "ROLE_$role")
                         return true
                 }
             }
+            //for (role: String in aInRoles) {
+            //    for (authority: GrantedAuthority in getPrinciple.authorities) {
+            //        if (authority.authority == "ROLE_$role")
+            //            return true
+            //    }
+            //}
         } catch (e: Exception) {
             throw AccessDeniedException(authorizationFailed)
+                .also { log.error("AccessDeniedException occurred: ${e.message}") }
         }
         return false
     }

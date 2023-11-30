@@ -9,12 +9,12 @@ export const fetchMe = createAsyncThunk('user/fetchMe',
     async (_, { rejectWithValue }) => {
         try {
             const { data } = await userApiClient.me()
+            console.log("data", data)
             return data
         } catch (error: any) {
             if (!error.response) {
                 throw error
             }
-
             return rejectWithValue(error)
         }
     })
@@ -37,13 +37,11 @@ const meSlice = createSlice({
             state.response = null
             state.error = null
         })
-
         builder.addCase(fetchMe.fulfilled, (state, action: PayloadAction<UserResponse>) => {
             state.isLoading = false
             state.response = action.payload
             state.error = null
         })
-
         builder.addCase(fetchMe.rejected, (state, action) => {
             state.isLoading = false
             state.response = null

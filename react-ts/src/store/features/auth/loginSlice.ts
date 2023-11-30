@@ -15,7 +15,6 @@ export const fetchLogin = createAsyncThunk('auth/fetchLogin',
         if (!error.response) {
             throw error
         }
-
         return rejectWithValue(error)
     }
 })
@@ -42,14 +41,12 @@ const authLoginSlice = createSlice({
             state.response = null
             state.error = null
         })
-
         builder.addCase(fetchLogin.fulfilled, (state, action: PayloadAction<ILoginResponse>) => {
             AppStorage.setTokens(action.payload.token, action.payload.refreshToken)
             state.isLoading = false
             state.response = action.payload
             state.error = null
         })
-
         builder.addCase(fetchLogin.rejected, (state, action) => {
             state.isLoading = false
             state.response = null

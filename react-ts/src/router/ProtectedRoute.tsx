@@ -4,10 +4,11 @@ import React from "react";
 
 const ProtectedRoute = (props: CustomRouteRoutePropsType): React.JSX.Element => {
     const { isAuthenticated, isAuthorized, element }: CustomRouteRoutePropsType = props
-    if (isAuthenticated && isAuthorized)
-        return element
-    if (!isAuthorized)
+    if (isAuthenticated) {
+        if (isAuthorized)
+            return element
         return <Navigate to={ { pathname: '/forbidden' } }/>
+    }
     return <Navigate to={ { pathname: '/login' } }/>
 }
 

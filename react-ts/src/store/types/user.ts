@@ -5,11 +5,16 @@ export interface UserResponse {
 export interface User {
     name: string
     email: string
-    username: string
     roles: Role[]
-    resourceUrl: string
+    friends: Friend[]
 }
 
 export interface Role {
     name: string
+}
+
+export interface Friend {
+    status: string
+    person: User
+    owner: User
 }

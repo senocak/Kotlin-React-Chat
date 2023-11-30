@@ -76,7 +76,17 @@ class UserController(
     )
     @GetMapping("/me")
     fun me(): UserWrapperResponse =
-        UserWrapperResponse(userResponse = userService.loggedInUser.convertEntityToDto(roles = true))
+        userService.loggedInUser
+            .run {
+                this.convertEntityToDto(
+                    roles = true,
+                    friends = friendService.findAll(specification = friendService.createSpecification(owner = this))
+                        .map { f: Friend -> f.convertEntityToDto() }
+                )
+            }
+            .run {
+                UserWrapperResponse(userResponse = this)
+            }
 
     @PatchMapping("/me")
     @Operation(
