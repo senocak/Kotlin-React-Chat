@@ -3,11 +3,9 @@ package com.github.senocak.factory
 import com.github.senocak.TestConstants.USER_EMAIL
 import com.github.senocak.TestConstants.USER_NAME
 import com.github.senocak.TestConstants.USER_PASSWORD
-import com.github.senocak.TestConstants.USER_USERNAME
 import com.github.senocak.domain.Role
 import com.github.senocak.domain.User
 import com.github.senocak.util.RoleName
-import java.util.HashSet
 
 object UserFactory {
 

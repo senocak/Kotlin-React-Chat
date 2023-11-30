@@ -3,32 +3,34 @@ package com.github.senocak.service
 import com.github.senocak.domain.Role
 import com.github.senocak.repository.RoleRepository
 import com.github.senocak.util.RoleName
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import java.util.Optional
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.mockito.InjectMocks
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 @Tag("unit")
 @ExtendWith(MockitoExtension::class)
 @DisplayName("Unit Tests for RoleService")
 class RoleServiceTest {
-    private val roleRepository = Mockito.mock(RoleRepository::class.java)
-    private var roleService = RoleService(roleRepository)
+    @InjectMocks private lateinit var roleService: RoleService
+    private val roleRepository: RoleRepository = mock<RoleRepository>()
 
     @Test
     fun givenRoleName_whenFindByName_thenAssertResult() {
         // Given
         val role = Role()
         val roleName: RoleName = RoleName.ROLE_USER
-        Mockito.doReturn(Optional.of<Any>(role)).`when`(roleRepository).findByName(roleName)
+        doReturn(value = role).`when`(roleRepository).findByName(roleName = roleName)
         // When
-        val findByName: Role? = roleService.findByName(roleName)
+        val findByName: Role? = roleService.findByName(roleName = roleName)
         // Then
-        Assertions.assertEquals(role, findByName)
+        assertEquals(role, findByName)
     }
 
     @Test
@@ -36,8 +38,8 @@ class RoleServiceTest {
         // Given
         val roleName: RoleName = RoleName.ROLE_USER
         // When
-        val findByName: Role? = roleService.findByName(roleName)
+        val findByName: Role? = roleService.findByName(roleName = roleName)
         // Then
-        Assertions.assertNull(findByName)
+        assertNull(findByName)
     }
 }

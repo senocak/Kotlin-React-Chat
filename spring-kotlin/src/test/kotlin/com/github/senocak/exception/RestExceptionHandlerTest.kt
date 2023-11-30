@@ -2,7 +2,6 @@ package com.github.senocak.exception
 
 import com.github.senocak.domain.dto.ExceptionDto
 import com.github.senocak.util.OmaErrorMessageType
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -18,6 +17,9 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.servlet.NoHandlerFoundException
 import java.util.Arrays
 import java.util.Optional
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 
 @Tag("unit")
 @ExtendWith(MockitoExtension::class)
@@ -33,15 +35,15 @@ class RestExceptionHandlerTest {
         val handleBadRequestException: ResponseEntity<Any> = restExceptionHandler.handleBadRequestException(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.BAD_REQUEST, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.BAD_REQUEST.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(ex.message, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(ex.message, message.get())
     }
 
     @Test
@@ -52,15 +54,15 @@ class RestExceptionHandlerTest {
         val handleBadRequestException: ResponseEntity<Any> = restExceptionHandler.handleUnAuthorized(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.UNAUTHORIZED.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.UNAUTHORIZED.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.UNAUTHORIZED, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.UNAUTHORIZED.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.UNAUTHORIZED.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(ex.message, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(ex.message, message.get())
     }
 
     @Test
@@ -72,15 +74,15 @@ class RestExceptionHandlerTest {
         val handleBadRequestException: ResponseEntity<Any> = restExceptionHandler.handleServerException(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.CONFLICT, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.CONFLICT.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.NOT_FOUND.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.NOT_FOUND.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.CONFLICT, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.CONFLICT.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.NOT_FOUND.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.NOT_FOUND.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(errrMsg, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(errrMsg, message.get())
     }
 
     @Test
@@ -91,15 +93,15 @@ class RestExceptionHandlerTest {
         val handleBadRequestException: ResponseEntity<Any> = restExceptionHandler.handleGeneralException(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.GENERIC_SERVICE_ERROR.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.GENERIC_SERVICE_ERROR.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.GENERIC_SERVICE_ERROR.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.GENERIC_SERVICE_ERROR.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(ex.message, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(ex.message, message.get())
     }
 
     @Test
@@ -111,15 +113,15 @@ class RestExceptionHandlerTest {
             restExceptionHandler.handleHttpRequestMethodNotSupported(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.METHOD_NOT_ALLOWED, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.METHOD_NOT_ALLOWED.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.EXTRA_INPUT_NOT_ALLOWED.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.EXTRA_INPUT_NOT_ALLOWED.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.EXTRA_INPUT_NOT_ALLOWED.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.EXTRA_INPUT_NOT_ALLOWED.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(ex.message, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(ex.message, message.get())
     }
 
     @Test
@@ -131,15 +133,15 @@ class RestExceptionHandlerTest {
             restExceptionHandler.handleHttpMediaTypeNotSupported(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.BASIC_INVALID_INPUT.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals(ex.message, message.get())
+        assertTrue(message.isPresent)
+        assertEquals(ex.message, message.get())
     }
 
     @Test
@@ -151,14 +153,14 @@ class RestExceptionHandlerTest {
             restExceptionHandler.handleNoHandlerFoundException(ex)
         val exceptionDto: ExceptionDto? = handleBadRequestException.body as ExceptionDto?
         // Then
-        Assertions.assertNotNull(exceptionDto)
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, handleBadRequestException.statusCode)
-        Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), exceptionDto!!.statusCode)
-        Assertions.assertEquals(OmaErrorMessageType.NOT_FOUND.messageId, exceptionDto.error!!.id)
-        Assertions.assertEquals(OmaErrorMessageType.NOT_FOUND.text, exceptionDto.error!!.text)
-        Assertions.assertEquals(1, exceptionDto.variables.size)
+        assertNotNull(exceptionDto)
+        assertEquals(HttpStatus.NOT_FOUND, handleBadRequestException.statusCode)
+        assertEquals(HttpStatus.NOT_FOUND.value(), exceptionDto!!.statusCode)
+        assertEquals(OmaErrorMessageType.NOT_FOUND.messageId, exceptionDto.error!!.id)
+        assertEquals(OmaErrorMessageType.NOT_FOUND.text, exceptionDto.error!!.text)
+        assertEquals(1, exceptionDto.variables.size)
         val message: Optional<String?> = Arrays.stream(exceptionDto.variables).findFirst()
-        Assertions.assertTrue(message.isPresent)
-        Assertions.assertEquals("No handler found for GET ", message.get())
+        assertTrue(message.isPresent)
+        assertEquals("No endpoint GET .", message.get())
     }
 }
