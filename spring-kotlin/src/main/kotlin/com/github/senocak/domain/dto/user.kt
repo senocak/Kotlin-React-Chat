@@ -2,12 +2,14 @@ package com.github.senocak.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import com.github.senocak.domain.User
 import com.github.senocak.util.FriendShipStatus
 import com.github.senocak.util.validation.PasswordMatches
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Size
 import org.springframework.context.ApplicationEvent
+import org.springframework.data.domain.Page
 
 @JsonPropertyOrder("name", "email", "roles")
 data class UserResponse(
@@ -23,7 +25,10 @@ data class UserResponse(
 
     @ArraySchema
     var friends: List<UserFriends>? = null
-): BaseDto()
+): BaseDto() {
+    @Schema(example = "data:image/png;base64,iVB...", description = "Avatar of the user", required = false, name = "picture", type = "String")
+    var picture: String? = null
+}
 
 @JsonPropertyOrder("user", "token", "refreshToken")
 data class UserWrapperResponse(
@@ -37,6 +42,13 @@ data class UserWrapperResponse(
     @Schema(example = "eyJraWQiOiJ...", description = "Refresh Token", required = true, name = "token", type = "String")
     var refreshToken: String? = null
 ): BaseDto()
+
+class UserPaginationDTO(
+    pageModel: Page<User>,
+    items: List<UserResponse>,
+    sortBy: String? = null,
+    sort: String? = null
+): PaginationResponse<User, UserResponse>(page = pageModel, items = items, sortBy = sortBy, sort = sort)
 
 @PasswordMatches
 data class UpdateUserDto(

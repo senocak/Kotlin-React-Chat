@@ -9,7 +9,7 @@ const Notification = (props: {color: string, message: string}) => {
                 top: '1rem',
                 right: '2rem',
                 width: '250px',
-                height: '25px',
+                height: '35px',
                 borderRadius: '5px',
                 borderLeft: `5px solid ${props.color}`,
                 padding: '1rem 1rem',

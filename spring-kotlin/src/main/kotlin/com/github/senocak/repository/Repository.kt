@@ -15,7 +15,11 @@ interface RoleRepository: PagingAndSortingRepository<Role, UUID>, CrudRepository
     fun findByName(roleName: RoleName): Role?
 }
 
-interface UserRepository: PagingAndSortingRepository<User, UUID>, CrudRepository<User, UUID> {
+interface UserRepository:
+    PagingAndSortingRepository<User, UUID>,
+    CrudRepository<User, UUID>,
+    JpaRepository<User, UUID>,
+    JpaSpecificationExecutor<User> {
     fun findByEmail(email: String?): User?
     fun existsByEmail(email: String?): Boolean
 }

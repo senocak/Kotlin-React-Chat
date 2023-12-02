@@ -27,6 +27,9 @@ class UserService(
     private val messageRepository: MessageRepository
 ): UserDetailsService {
 
+    fun findAllUsers(specification: Specification<User>, pageRequest: Pageable): Page<User> =
+        userRepository.findAll(specification, pageRequest)
+
     /**
      * @param id -- uuid id to find in db
      * @return -- Optional User object
@@ -77,28 +80,41 @@ class UserService(
             (SecurityContextHolder.getContext().authentication.principal as org.springframework.security.core.userdetails.User).username
                 .run { findByEmail(email = this)  }
 
-    fun findAll(specification: Specification<Message>, pageRequest: Pageable): Page<Message> =
+    fun createSpecificationForUser(q: String?): Specification<User> {
+        return Specification { root: Root<User>, query: CriteriaQuery<*>, criteriaBuilder: CriteriaBuilder ->
+            val predicates: MutableList<Predicate> = ArrayList()
+            if (!q.isNullOrEmpty()) {
+                val predicateName: Predicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%${q.lowercase()}%")
+                val predicateEmail: Predicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%${q.lowercase()}%")
+                predicates.add(criteriaBuilder.or(predicateName, predicateEmail))
+            }
+            query.where(*predicates.toTypedArray()).distinct(true).restriction
+        }
+    }
+
+    fun findAllMessages(specification: Specification<Message>, pageRequest: Pageable): Page<Message> =
         messageRepository.findAll(specification, pageRequest)
 
-    fun createSpecification(user1: User, user2: User, body: String?): Specification<Message> {
+    fun createSpecificationForMessage(user1: User? = null, user2: User? = null, body: String?): Specification<Message> {
         return Specification { root: Root<Message>, query: CriteriaQuery<*>, criteriaBuilder: CriteriaBuilder ->
             val predicates: MutableList<Predicate> = ArrayList()
 
             if (body != null && body != "")
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("body")), "%${body.lowercase()}%"))
 
-            predicates.add(
-                criteriaBuilder.or(
-                    criteriaBuilder.and(
-                        criteriaBuilder.equal(root.get<User>("from"), user1),
-                        criteriaBuilder.equal(root.get<User>("to"), user2)
-                    ),
-                    criteriaBuilder.and(
-                        criteriaBuilder.equal(root.get<User>("from"), user2),
-                        criteriaBuilder.equal(root.get<User>("to"), user1)
+            if (user1 !== null && user2 !== null)
+                predicates.add(
+                    criteriaBuilder.or(
+                        criteriaBuilder.and(
+                            criteriaBuilder.equal(root.get<User>("from"), user1),
+                            criteriaBuilder.equal(root.get<User>("to"), user2)
+                        ),
+                        criteriaBuilder.and(
+                            criteriaBuilder.equal(root.get<User>("from"), user2),
+                            criteriaBuilder.equal(root.get<User>("to"), user1)
+                        )
                     )
                 )
-            )
             query.where(*predicates.toTypedArray()).distinct(true).restriction
         }
     }

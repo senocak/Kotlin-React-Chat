@@ -7,8 +7,8 @@ import com.github.senocak.domain.dto.ExceptionDto
 import com.github.senocak.domain.dto.MessagesPaginationDTO
 import com.github.senocak.domain.dto.PaginationCriteria
 import com.github.senocak.domain.dto.UpdateUserDto
+import com.github.senocak.domain.dto.UserPaginationDTO
 import com.github.senocak.domain.dto.UserResponse
-import com.github.senocak.domain.dto.UserWrapperResponse
 import com.github.senocak.exception.ServerException
 import com.github.senocak.security.Authorize
 import com.github.senocak.service.FriendService
@@ -64,18 +64,68 @@ class UserController(
 
     @Throws(ServerException::class)
     @Operation(
+        summary = "All Users",
+        tags = ["User"],
+        responses = [
+            ApiResponse(responseCode = "200", description = "successful operation",
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserPaginationDTO::class)))),
+            ApiResponse(responseCode = "500", description = "internal server error occurred",
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
+        ],
+        security = [SecurityRequirement(name = securitySchemeName, scopes = [ADMIN, USER])]
+    )
+    @GetMapping
+    fun allUsers(
+        @Parameter(name = "page", description = "Page number", example = "0") @RequestParam(defaultValue = "1", required = false) page: Int,
+        @Parameter(name = "size", description = "Page size", example = "20") @RequestParam(defaultValue = "\${spring.data.web.pageable.default-page-size:10}", required = false) size: Int,
+        @Parameter(name = "sortBy", description = "Sort by column", example = "id") @RequestParam(defaultValue = "id", required = false) sortBy: String,
+        @Parameter(name = "sort", description = "Sort direction", schema = Schema(type = "string", allowableValues = ["asc", "desc"])) @RequestParam(defaultValue = "asc", required = false) @Pattern(regexp = "asc|desc") sort: String,
+        @Parameter(name = "q", description = "Search keyword", example = "lorem") @RequestParam(required = false) q: String?
+    ): UserPaginationDTO =
+        arrayListOf("id", "name", "email")
+            .run {
+                if (this.none { it == sortBy }) {
+                    "Invalid sort column"
+                        .also { log.error(it) }
+                        .run error@ { throw ServerException(omaErrorMessageType = OmaErrorMessageType.BASIC_INVALID_INPUT,
+                            variables = arrayOf(this@error), statusCode = HttpStatus.BAD_REQUEST) }
+                }
+                PaginationCriteria(page = page, size = size)
+                    .also { it: PaginationCriteria ->
+                        it.sortBy = sortBy
+                        it.sort = sort
+                        it.columns = this
+                    }
+                    .run paginationCriteria@ {
+                        userService.findAllUsers(
+                            specification = userService.createSpecificationForUser(q = q),
+                            pageRequest = PageRequestBuilder.build(paginationCriteria = this@paginationCriteria)
+                        )
+                    }
+                    .run messagePage@ {
+                        UserPaginationDTO(
+                            pageModel = this@messagePage,
+                            items = this@messagePage.content.map { it: User -> it.convertEntityToDto() }.toList(),
+                            sortBy = sortBy,
+                            sort = sort
+                        )
+                    }
+            }
+
+    @Throws(ServerException::class)
+    @Operation(
         summary = "Get me",
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserWrapperResponse::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserResponse::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
         security = [SecurityRequirement(name = securitySchemeName, scopes = [ADMIN, USER])]
     )
     @GetMapping("/me")
-    fun me(): UserWrapperResponse =
+    fun me(): UserResponse =
         userService.loggedInUser
             .run {
                 this.convertEntityToDto(
@@ -84,9 +134,6 @@ class UserController(
                         .map { f: Friend -> f.convertEntityToDto() }
                 )
             }
-            .run {
-                UserWrapperResponse(userResponse = this)
-            }
 
     @PatchMapping("/me")
     @Operation(
@@ -94,7 +141,7 @@ class UserController(
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = HashMap::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserResponse::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
@@ -104,7 +151,7 @@ class UserController(
     fun patchMe(request: HttpServletRequest,
         @Parameter(description = "Request body to update", required = true) @Validated @RequestBody userDto: UpdateUserDto,
         resultOfValidation: BindingResult
-    ): UserWrapperResponse {
+    ): UserResponse {
         validate(resultOfValidation)
         val user: User = userService.loggedInUser
         val name: String? = userDto.name
@@ -125,7 +172,7 @@ class UserController(
             }
             user.password = passwordEncoder.encode(password)
         }
-        return UserWrapperResponse(userResponse = userService.save(user = user).convertEntityToDto(roles = true))
+        return userService.save(user = user).convertEntityToDto(roles = true)
     }
 
     @PutMapping("/friend/{email}")
@@ -134,7 +181,7 @@ class UserController(
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = HashMap::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserResponse::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
@@ -218,7 +265,7 @@ class UserController(
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = HashMap::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserResponse::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
@@ -268,7 +315,7 @@ class UserController(
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = HashMap::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserResponse::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
@@ -363,7 +410,7 @@ class UserController(
         tags = ["User"],
         responses = [
             ApiResponse(responseCode = "200", description = "successful operation",
-                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = UserWrapperResponse::class)))),
+                content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = MessagesPaginationDTO::class)))),
             ApiResponse(responseCode = "500", description = "internal server error occurred",
                 content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ExceptionDto::class))))
         ],
@@ -394,8 +441,8 @@ class UserController(
                         it.columns = columns
                     }
                     .run paginationCriteria@ {
-                        userService.findAll(
-                            specification = userService.createSpecification(
+                        userService.findAllMessages(
+                            specification = userService.createSpecificationForMessage(
                                 user1 = this@me,
                                 user2 = userService.findByEmail(email = email),
                                 body = q

@@ -23,9 +23,7 @@ root.render(
                     <i className="fa-solid fa-skull-crossbones"></i>
                 </div>
             </div>
-            <div className="window-area">
-                <AppRouter/>
-            </div>
+            <AppRouter/>
         </div>
     </Provider>
 )

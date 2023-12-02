@@ -49,6 +49,8 @@ class User(
     )
     @ManyToMany(fetch = FetchType.EAGER)
     var roles: List<Role> = arrayListOf(),
+
+    @Column(nullable = true) @Lob var picture: String? = null,
 ) : BaseDomain()
 
 @Entity

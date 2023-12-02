@@ -1,15 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import UserApiClient from '../../../utils/http-client/UserApiClient'
 import { IState } from '../../types/global'
-import {UserResponse} from '../../types/user'
+import {User} from '../../types/user'
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
 export const fetchMe = createAsyncThunk('user/fetchMe',
-    async (_, { rejectWithValue }) => {
+    async (_: void, { rejectWithValue }) => {
         try {
-            const { data } = await userApiClient.me()
-            console.log("data", data)
+            const {data} = await userApiClient.me()
             return data
         } catch (error: any) {
             if (!error.response) {
@@ -19,7 +18,7 @@ export const fetchMe = createAsyncThunk('user/fetchMe',
         }
     })
 
-const initialState: IState<UserResponse> = {
+const initialState: IState<User> = {
     isLoading: false,
     response: null,
     error: null
@@ -29,7 +28,11 @@ const meSlice = createSlice({
     name: 'user/me',
     initialState,
     reducers: {
-        resetMe: () => initialState
+        resetMe: () => initialState,
+        updateFriendsInContext: (state: IState<User>, action): void => {
+            if (state.response)
+                state.response!.friends = action.payload.friends
+        },
     },
     extraReducers: builder => {
         builder.addCase(fetchMe.pending, state => {
@@ -37,7 +40,7 @@ const meSlice = createSlice({
             state.response = null
             state.error = null
         })
-        builder.addCase(fetchMe.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+        builder.addCase(fetchMe.fulfilled, (state, action: PayloadAction<User>) => {
             state.isLoading = false
             state.response = action.payload
             state.error = null
@@ -51,4 +54,7 @@ const meSlice = createSlice({
 })
 
 export default meSlice.reducer
-export const {resetMe} = meSlice.actions
+export const {
+    resetMe,
+    updateFriendsInContext
+} = meSlice.actions

@@ -1,5 +1,7 @@
 import AbstractHttpClient from './AbstractHttpClient'
 import app from "../../config/app"
+import {IPagination} from "../../store/types/global"
+import {AxiosResponse} from "axios"
 
 export default class UserApiClient extends AbstractHttpClient {
     /**
@@ -35,5 +37,19 @@ export default class UserApiClient extends AbstractHttpClient {
         return this.classInstance
     }
 
-    public me = async () => await this.instance.get('/user/me')
+    public me = async () =>
+        await this.instance.get<AxiosResponse>('/user/me')
+
+    public getAllUsers = async (data: IPagination) => {
+        let url: string = `/user?page=${data.page}&size=${data.size}&sort=${data.sort}&sortBy=${data.sortBy}`
+        if (data.q !== null)
+            url = `${url}&q=${data.q}`
+        return await this.instance.get(url)
+    }
+
+    public patchBlockUnBlock = async (email: string, operation: string) =>
+        await this.instance.patch<AxiosResponse>(`/user/friend/${email}?operation=${operation}`)
+
+    public putFriend = async (email: string) =>
+        await this.instance.put<AxiosResponse>(`/user/friend/${email}`)
 }

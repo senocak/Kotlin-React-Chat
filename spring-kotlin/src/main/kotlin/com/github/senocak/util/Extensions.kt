@@ -25,6 +25,9 @@ fun User.convertEntityToDto(roles: Boolean = false, friends: List<UserFriends>? 
         when {
             friends != null -> it.friends = friends
         }
+        when {
+            this.picture !== null -> it.picture = this.picture
+        }
     }
 
 /**

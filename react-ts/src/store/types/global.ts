@@ -4,13 +4,10 @@ export interface IState<T> {
     error: any
 }
 
-export interface ErrorResponse {
-    exception: {
-        statusCode: number
-        error: {
-            id: string
-            text: string
-        };
-        variables: string[]
-    }
+export interface IPagination {
+    page: number
+    size: number
+    sortBy: string
+    sort: string
+    q?: string | null
 }

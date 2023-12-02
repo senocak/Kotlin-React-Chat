@@ -5,10 +5,9 @@ import PublicRoute from './PublicRoute'
 import {RouteItemType, routes} from '../config/routes'
 import { useAppDispatch, useAppSelector } from '../store'
 import { history } from '../utils/history'
-import {fetchMe} from "../store/features/auth/meSlice";
-import {Role, UserResponse} from '../store/types/user'
-import {IState} from "../store/types/global";
-import {log} from "util";
+import {fetchMe} from "../store/features/auth/meSlice"
+import {Role, User} from '../store/types/user'
+import {IState} from "../store/types/global"
 
 /**
  * Converts the router tree to a flat list.
@@ -51,7 +50,7 @@ export const AppRouter = () => {
     const dispatch = useAppDispatch()
     const [state, setState] = useState({ action: history.action, location: history.location })
     const [routeItems, setRouteItems] = useState<Array<RouteItemType>>([])
-    const me: IState<UserResponse> = useAppSelector(state => state.me)
+    const me: IState<User> = useAppSelector(state => state.me)
 
     useLayoutEffect(() => history.listen(setState), [])
     useEffect((): void => {
@@ -60,9 +59,6 @@ export const AppRouter = () => {
         }
         setRouteItems(getFlatRoutes(routes))
     }, [me.response, dispatch])
-    useEffect((): void => {
-        //setRouteItems(getFlatRoutes(routes))
-    }, [me.response])
     useLayoutEffect(() => history.listen(setState), [])
     return (
         <>
@@ -83,7 +79,7 @@ export const AppRouter = () => {
                                                               isAuthorized={
                                                                   me.response !== null &&
                                                                   route.role !== undefined &&
-                                                                  route.role.some((allowedRole: Role) => me.response!!.user.roles.some((role: Role): boolean => role.name === allowedRole.name))
+                                                                  route.role.some((allowedRole: Role) => me.response!!.roles.some((role: Role): boolean => role.name === allowedRole.name))
                                                               }
                                                               element={<route.component/>}/>
                                                       }
