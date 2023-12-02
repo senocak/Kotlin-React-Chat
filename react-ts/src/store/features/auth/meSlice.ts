@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import UserApiClient from '../../../utils/http-client/UserApiClient'
 import { IState } from '../../types/global'
-import {User} from '../../types/user'
+import {Friend, User} from '../../types/user'
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
@@ -33,6 +33,26 @@ const meSlice = createSlice({
             if (state.response)
                 state.response!.friends = action.payload.friends
         },
+        deleteFriendsInContext: (state: IState<User>, action): void => {
+            console.log(action.payload)
+            if (state.response)
+                for (let i: number = 0; i < state.response.friends.length; i++) {
+                    if (state.response.friends[i].owner.email === action.payload.email || state.response.friends[i].person.email === action.payload.email) {
+                        state.response.friends.splice(i, 1)
+                        return
+                    }
+                }
+        },
+        addFriendsInContext: (state: IState<User>, action): void => {
+            if (state.response) {
+                const newFriend: Friend = {
+                    status: "Pending",
+                    person: action.payload.person,
+                    owner: action.payload.owner
+                }
+                state.response.friends.push(newFriend)
+            }
+        },
     },
     extraReducers: builder => {
         builder.addCase(fetchMe.pending, state => {
@@ -56,5 +76,7 @@ const meSlice = createSlice({
 export default meSlice.reducer
 export const {
     resetMe,
-    updateFriendsInContext
+    updateFriendsInContext,
+    deleteFriendsInContext,
+    addFriendsInContext,
 } = meSlice.actions

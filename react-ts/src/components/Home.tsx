@@ -5,17 +5,21 @@ import {Friend, User, UserPaginationDTO} from "../store/types/user"
 import Notification from "./Notification"
 import EmojiPicker, {EmojiClickData} from "emoji-picker-react"
 import {fetchBlockUnblockFriend} from "../store/features/patchBlockUnblockFriendSlice"
-import {updateFriendsInContext} from "../store/features/auth/meSlice"
+import {addFriendsInContext, deleteFriendsInContext, updateFriendsInContext} from "../store/features/auth/meSlice"
 import {fetchGetAllUsers} from "../store/features/getAllUsersSlice"
+import {fetchPutFriend} from "../store/features/putFriendSlice";
+import {fetchDeleteFriend} from "../store/features/deleteFriendSlice";
 
 function Home(): React.JSX.Element {
     const dispatch = useAppDispatch()
     const me: IState<User> = useAppSelector(state => state.me)
     const patchBlockUnblockFriend: IState<User> = useAppSelector(state => state.patchBlockUnblockFriend)
     const getAllUsers: IState<UserPaginationDTO> = useAppSelector(state => state.getAllUsers)
-    const putFriend: IState<User> = useAppSelector(state => state.putFriendSlice)
+    const putFriend: IState<User> = useAppSelector(state => state.putFriend)
+    const deleteFriend: IState<User> = useAppSelector(state => state.deleteFriend)
     const [notification, setNotification] = useState({show: false, color: "green", msg: ""})
     const [selectedFriend, setSelectedFriend] = useState<Friend |null>(null)
+    const [selectedNewFriend, setSelectedNewFriend] = useState<User |null>(null)
     const [selectedTab, setSelectedTab] = useState<string>('')
     const [msg, setMsg] = useState<string>('')
     const [showPicker, setShowPicker] = useState<boolean>(false)
@@ -60,6 +64,30 @@ function Home(): React.JSX.Element {
             }
         }
     }, [getAllUsers, dispatch])
+    useEffect((): void => {
+        if (selectedNewFriend !== null) {
+            dispatch(fetchPutFriend(selectedNewFriend!.email))
+        }
+    }, [selectedNewFriend, dispatch])
+    useEffect((): void => {
+        if (putFriend.response !== null && !putFriend.isLoading) {
+            dispatch(addFriendsInContext({owner: me.response, person: selectedNewFriend}))
+            setSelectedNewFriend(null)
+            setNotification({show: true, color: 'green', msg: `İstek gönderildi.`})
+            setTimeout((): void => {
+                setNotification({show: false, color: '', msg: ''})
+            }, 3000)
+        }
+    }, [putFriend, dispatch])
+    useEffect((): void => {
+        if (deleteFriend.response !== null && !deleteFriend.isLoading && selectedFriend !== null) {
+            dispatch(deleteFriendsInContext({email: getUserFromFriend(selectedFriend).email}))
+            setNotification({show: true, color: 'green', msg: `İstek Silindi.`})
+            setTimeout((): void => {
+                setNotification({show: false, color: '', msg: ''})
+            }, 3000)
+        }
+    }, [deleteFriend, dispatch])
     const getUserFromFriend = (friend: Friend): User => friend.owner?.email === me.response?.email ? friend.person : friend.owner
 
     return <>
@@ -288,8 +316,13 @@ function Home(): React.JSX.Element {
                                         selectedFriend.status === "Accepted"
                                             ? <li><i className="fa-solid fa-user-xmark"></i> Arkadaşlıktan çıkar</li>
                                             : getUserFromFriend(selectedFriend).email === me.response?.email
-                                                ? <li><i className="fa-solid fa-user-xmark"></i> İsteği iptal et</li>
-                                                : <li><i className="fa-solid fa-user-xmark"></i> İsteği kabul et</li>
+                                                ? <li><i className="fa-solid fa-user-xmark"></i> İsteği kabul et</li>
+                                                : <li
+                                                    onClick={(): void => {
+                                                        dispatch(fetchDeleteFriend(getUserFromFriend(selectedFriend).email))
+                                                    }}>
+                                                    <i className="fa-solid fa-user-xmark"></i> İsteği iptal et
+                                                </li>
                                     }
                                     {
                                         !selectedFriend.blockedAt
@@ -369,7 +402,12 @@ function Home(): React.JSX.Element {
                                                             {
                                                                 me.response?.friends.find((f: Friend) => f.owner.email === item.email || f.person.email === item.email)
                                                                     ? ""
-                                                                    : <span className="time" style={{float: 'right'}}><i className="fa-solid fa-user-plus"></i></span>
+                                                                    : <span className="time" style={{float: 'right'}}>
+                                                                        <i
+                                                                            className="fa-solid fa-user-plus"
+                                                                            onClick={(): void => {setSelectedNewFriend(item)}}
+                                                                        ></i>
+                                                                    </span>
                                                             }
 
                                                         </li>

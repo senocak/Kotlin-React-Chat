@@ -52,4 +52,7 @@ export default class UserApiClient extends AbstractHttpClient {
 
     public putFriend = async (email: string) =>
         await this.instance.put<AxiosResponse>(`/user/friend/${email}`)
+
+    public deleteFriend = async (email: string) =>
+        await this.instance.delete<AxiosResponse>(`/user/friend/${email}`)
 }

@@ -5,10 +5,10 @@ import {User} from "../types/user"
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
-export const fetchBlockUnblockFriend = createAsyncThunk('user/blockUnblockFriend',
-    async (body: {email: string, operation: string}, {rejectWithValue}) => {
+export const fetchDeleteFriend = createAsyncThunk('user/deleteFriend',
+    async (email: string, {rejectWithValue}) => {
         try {
-            const {data} = await userApiClient.patchBlockUnBlock(body.email, body.operation)
+            const {data} = await userApiClient.deleteFriend(email)
             return data
         } catch (error: any) {
             if (!error.response) {
@@ -24,24 +24,24 @@ const initialState: IState<User> = {
     error: null
 }
 
-const patchBlockUnblockFriendSlice = createSlice({
-    name: 'user/blockUnblockFriend',
+const deleteFriendSlice = createSlice({
+    name: 'user/deleteFriend',
     initialState,
     reducers: {
         reset: () => initialState
     },
     extraReducers: builder => {
-        builder.addCase(fetchBlockUnblockFriend.pending, state => {
+        builder.addCase(fetchDeleteFriend.pending, state => {
             state.isLoading = true
             state.response = null
             state.error = null
         })
-        builder.addCase(fetchBlockUnblockFriend.fulfilled, (state, action: PayloadAction<User>): void => {
+        builder.addCase(fetchDeleteFriend.fulfilled, (state, action: PayloadAction<User>): void => {
             state.isLoading = false
             state.response = action.payload
             state.error = null
         })
-        builder.addCase(fetchBlockUnblockFriend.rejected, (state, action): void => {
+        builder.addCase(fetchDeleteFriend.rejected, (state, action): void => {
             state.isLoading = false
             state.response = null
             state.error = action.payload
@@ -49,7 +49,7 @@ const patchBlockUnblockFriendSlice = createSlice({
     }
 })
 
-export default patchBlockUnblockFriendSlice.reducer
+export default deleteFriendSlice.reducer
 export const {
     reset
-} = patchBlockUnblockFriendSlice.actions
+} = deleteFriendSlice.actions
