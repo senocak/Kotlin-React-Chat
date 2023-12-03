@@ -8,6 +8,7 @@ import com.github.senocak.security.JwtTokenProvider
 import com.github.senocak.service.WebSocketCacheService
 import com.github.senocak.util.AppConstants.logger
 import com.github.senocak.util.OmaErrorMessageType
+import com.github.senocak.util.split
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import org.slf4j.Logger
@@ -41,10 +42,7 @@ class WebsocketChannelHandler(
             try {
                 if (session.uri == null)
                     log.error("Unable to retrieve the websocket session; serious error!").also { return }
-                val headers: HttpHeaders = session.handshakeHeaders
-                if (!headers.containsKey("Authorization"))
-                    log.error("Token not found; rejecting!").also { return }
-                val (emailFromJWT: String, token: String) = getEmailFromJWT(headers = headers)
+                val (token: String, emailFromJWT: String) = getAccessTokenFromQueryParams(query = session.uri!!.query)
                 WebsocketIdentifier(email = emailFromJWT, token = token, session = session)
                     .also { log.info("Websocket session established: $it") }
                     .run { webSocketCacheService.put(data = this) }
@@ -63,10 +61,7 @@ class WebsocketChannelHandler(
             try {
                 if (session.uri == null)
                     log.error("Unable to retrieve the websocket session; serious error!").also { return }
-                val headers: HttpHeaders = session.handshakeHeaders
-                if (!headers.containsKey("Authorization"))
-                    log.error("Token not found; rejecting!").also { return }
-                val (emailFromJWT: String, _: String) = getEmailFromJWT(headers = headers)
+                val (_: String, emailFromJWT: String) = getAccessTokenFromQueryParams(query = session.uri!!.query)
                 webSocketCacheService.deleteSession(key = emailFromJWT)
                     .also { log.debug("Websocket for $emailFromJWT has been closed") }
             } catch (ex: Throwable) {
@@ -84,7 +79,7 @@ class WebsocketChannelHandler(
                 log.trace("TextMessage: $body")
                 try {
                     val requestBody: WsRequestBody = objectMapper.readValue(message.payload, WsRequestBody::class.java)
-                    val (emailFromJWT: String, _: String) = getEmailFromJWT(headers = session.handshakeHeaders)
+                    val (_: String, emailFromJWT: String) = getAccessTokenFromQueryParams(query = session.uri!!.query)
                     requestBody.from = emailFromJWT
                     webSocketCacheService.sendPrivateMessage(requestBody = requestBody)
                     log.info("Websocket message sent: ${message.payload}")
@@ -101,6 +96,26 @@ class WebsocketChannelHandler(
 
     override fun supportsPartialMessages(): Boolean = true
 
+    /**
+     * Parses the query string into a map of key/value pairs.
+     * @param queryParamString The query string to parse.
+     * @return A map of key/value pairs.
+     */
+    private fun getQueryParams(queryParamString: String): Map<String, String>? {
+        val queryParams: MutableMap<String, String> = LinkedHashMap()
+        if (queryParamString.isEmpty())
+            return null
+        val split: Array<String>? = queryParamString.split(delimiter = "&")
+        if (split != null && split.size > 1) for (param: String in split) {
+            val paramArray: Array<String>? = param.split(delimiter = "=")
+            queryParams[paramArray!![0]] = paramArray[1]
+        } else {
+            val paramArray: Array<String>? = queryParamString.split(delimiter = "=")
+            queryParams[paramArray!![0]] = paramArray[1]
+        }
+        return queryParams
+    }
+
     private fun getEmailFromJWT(headers: HttpHeaders): Pair<String, String> =
         headers["Authorization"]
             .run {
@@ -115,4 +130,10 @@ class WebsocketChannelHandler(
                         variables = arrayOf("token is invalid"), statusCode = HttpStatus.INTERNAL_SERVER_ERROR)
                 }
             }
+
+    private fun getAccessTokenFromQueryParams(query: String): Pair<String, String>  {
+        val queryParams: Map<String, String> = getQueryParams(queryParamString = query) ?: throw Exception("QueryParams can not be empty")
+        val accessToken: String = queryParams["access_token"] ?: throw Exception("Auth can not be empty")
+        return Pair(first = accessToken, second = jwtTokenProvider.getEmailFromJWT(token = accessToken))
+    }
 }

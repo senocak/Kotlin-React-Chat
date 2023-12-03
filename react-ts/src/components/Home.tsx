@@ -1,11 +1,16 @@
-import React, {Component, createRef, useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {useAppDispatch, useAppSelector} from "../store"
 import {IPagination, IState} from "../store/types/global"
-import {Friend, UserResponse, UserPaginationDTO} from "../store/types/userResponse"
+import {Friend, UserPaginationDTO, UserResponse} from "../store/types/userResponse"
 import Notification from "./Notification"
 import EmojiPicker, {EmojiClickData} from "emoji-picker-react"
 import {fetchBlockUnblockFriend} from "../store/features/patchBlockUnblockFriendSlice"
-import {addFriendsInContext, deleteFriendsInContext, updateFriendsInContext} from "../store/features/auth/meSlice"
+import {
+    addFriendsInContext,
+    deleteFriendsInContext,
+    updateFriendsInContext,
+    updateOnlineOfflineFriendInContext
+} from "../store/features/auth/meSlice"
 import {fetchGetAllUsers} from "../store/features/getAllUsersSlice"
 import {fetchPutFriend} from "../store/features/putFriendSlice"
 import {fetchDeleteFriend} from "../store/features/deleteFriendSlice"
@@ -13,6 +18,10 @@ import {fetchGetAllMessages} from "../store/features/getAllMessagesSlice"
 import {MessageDTO} from "../store/types/message"
 import moment from "moment"
 import {makeid} from "../utils"
+import app from "../config/app"
+import AppStorage from "../utils/storage"
+import {IMessageEvent, w3cwebsocket as WebSocket} from 'websocket'
+import {WsRequestBody, WsType} from "../store/types/ws"
 
 function Home(): React.JSX.Element {
     const dispatch = useAppDispatch()
@@ -30,6 +39,51 @@ function Home(): React.JSX.Element {
     const [showPicker, setShowPicker] = useState<boolean>(false)
     const [allUsers, setAllUsers] = useState<UserResponse[] |null>(null)
     const messagesEndRef = useRef<HTMLLIElement>(null)
+    const [wsConnection, setWsConnection] = useState<WebSocket |null>(null)
+
+    useEffect((): void => {
+        const ws: WebSocket = new WebSocket(`${app.API_WS}?access_token=${AppStorage.getAccessToken()}`)
+        ws.onopen = (): void => {
+            setWsConnection(ws)
+            setNotification({show: true, color: 'green', msg: `Websocket bağlandı`})
+            setTimeout((): void => {
+                setNotification({show: false, color: '', msg: ''})
+            }, 1_000)
+        }
+        let msg = {show: true, color: '', msg: ``}
+        ws.onmessage = (event: IMessageEvent): void => {
+            const parse: WsRequestBody = JSON.parse(event.data.toString())
+            if (parse.type === WsType.Online) {
+                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'online'}))
+            } else  if (parse.type === WsType.Offline) {
+                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'offline'}))
+            } else  if (parse.type === WsType.PrivateMessage) {
+                console.log("PrivateMessage")
+            } else if (parse.type === WsType.FriendShipPending) {
+                console.log("FriendShipPending")
+            } else if (parse.type === WsType.FriendShipAccepted) {
+                console.log("FriendShipAccepted")
+            } else if (parse.type === WsType.FriendShipBlocked) {
+                console.log("FriendShipBlocked")
+            } else if (parse.type === WsType.FriendShipUnBlocked) {
+                console.log("FriendShipUnBlocked")
+            } else if (parse.type === WsType.FriendShipDeleted) {
+                console.log("FriendShipDeleted")
+            } else {
+                msg = {show: true, color: 'red', msg: `Bilinmeyen ws mesajı. ${parse.type}`}
+            }
+
+            if (msg.msg !== '') {
+                setNotification(msg)
+                setTimeout((): void => {
+                    setNotification({show: false, color: '', msg: ''})
+                }, 1_000)
+            }
+        }
+        ws.onclose = (): void => {
+            console.log('WebSocket connection closed')
+        }
+    }, [])
 
     const defaultPagination : IPagination = {
         page: 1,
@@ -140,15 +194,15 @@ function Home(): React.JSX.Element {
 
                                        }}/>
                                     <span>{getUserFromFriend(friend).name}</span>
+                                    {friend.isOnline && <i className="fa-solid fa-circle fa-2xs" style={{color: 'green', fontSize: 'xx-small'}}></i>}
                                 </li>
                             )
                         }
                     </ul>
-                    selectedTab:{selectedTab}
                     <div className="my-account" onClick={() => setSelectedTab('settings')}>
                         <div className="image">
                             <img src={me.response?.picture} alt={me.response?.name}/>
-                            <i className="fa fa-circle online"></i>
+                            <i className={`fa fa-circle ${wsConnection !== null ? 'online' : 'offline'}`}></i>
                         </div>
                         <div className="name">
                             <span>{me.response?.name}</span>
@@ -244,13 +298,20 @@ function Home(): React.JSX.Element {
                         {selectedTab === 'profile' &&
                             <>
                                 <header style={{textAlign: 'center'}}>
-                                    <img src={getUserFromFriend(selectedFriend).picture} style={{width: '75px'}} alt={getUserFromFriend(selectedFriend).name}/>
+                                    <img
+                                        src={getUserFromFriend(selectedFriend).picture}
+                                        style={{
+                                            width: '75px',
+                                            borderRadius: '100px',
+                                            border: selectedFriend.isOnline ? '2px solid green': '2px solid red'
+                                        }}
+                                        alt={getUserFromFriend(selectedFriend).name}
+                                    />
                                     <h1>{getUserFromFriend(selectedFriend).name}</h1>
                                     <h2>{getUserFromFriend(selectedFriend).email}</h2>
                                 </header>
                                 <br/>
                                 <ul className="member-list">
-                                    <li><i style={{color: "red"}} className="fa-regular fa-circle"></i> <span>Online / Offline</span></li>
                                     {
                                         selectedFriend.status === "Accepted"
                                             ? <li><i className="fa-solid fa-user-xmark"></i> Arkadaşlıktan çıkar</li>

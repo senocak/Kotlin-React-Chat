@@ -17,6 +17,7 @@ export interface Friend {
     blockedBy?: UserResponse
     approvedAt?: number
     blockedAt?: number
+    isOnline: boolean
 }
 
 export interface UserPaginationDTO {
