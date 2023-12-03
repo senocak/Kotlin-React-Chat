@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
-//import i18next from 'i18next'
 import AppStorage from '../storage'
 import store from '../../store'
-import TokenType from "../storage/TokenType";
+import TokenType from "../storage/TokenType"
+import history from "../history"
 
 declare module 'axios' {
     /**
@@ -123,14 +123,13 @@ export default abstract class AbstractHttpClient {
 
         if (401 === statusCode) {
             if (AppStorage.getRefreshToken() !== null) {
-                const refreshApiUrlPath = '/auth/refresh'
-
+                const refreshApiUrlPath: string = '/auth/refresh'
                 if (error.config?.url !== refreshApiUrlPath) {
                     try {
                         const originalRequest = error.config!
 
                         this._initializeRequestForRefresh()
-                        const { data } = await this.instance.post(refreshApiUrlPath)
+                        const { data } = await this.instance.post(refreshApiUrlPath, {token: AppStorage.getRefreshToken()})
                         AppStorage.setTokens(data.token, data.refreshToken)
 
                         this._initializeRequest()
@@ -146,11 +145,10 @@ export default abstract class AbstractHttpClient {
                 //history.push('/login')
             }
         } else if (403 === statusCode) {
-            //console.error(i18next.t('errors_types.forbidden'))
+            console.error("errors_types.forbidden")
         } else if (500 <= statusCode) {
-            //console.error(i18next.t('errors_types.unsuccessful'))
+            console.error("errors_types.unsuccessful")
         }
-
         return Promise.reject(error)
     }
 }

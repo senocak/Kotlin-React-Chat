@@ -55,4 +55,11 @@ export default class UserApiClient extends AbstractHttpClient {
 
     public deleteFriend = async (email: string) =>
         await this.instance.delete<AxiosResponse>(`/user/friend/${email}`)
+
+    public getAllMessages = async (email: string, data: IPagination) => {
+        let url: string = `/user/message/${email}?page=${data.page}&size=${data.size}&sort=${data.sort}&sortBy=${data.sortBy}`
+        if (data.q !== null)
+            url = `${url}&q=${data.q}`
+        return await this.instance.get(url)
+    }
 }

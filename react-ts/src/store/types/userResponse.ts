@@ -1,4 +1,4 @@
-export interface User {
+export interface UserResponse {
     name: string
     email: string
     picture: string
@@ -12,9 +12,9 @@ export interface Role {
 
 export interface Friend {
     status: string
-    person: User
-    owner: User
-    blockedBy?: User
+    person: UserResponse
+    owner: UserResponse
+    blockedBy?: UserResponse
     approvedAt?: number
     blockedAt?: number
 }
@@ -25,5 +25,5 @@ export interface UserPaginationDTO {
     total: number
     sort: string
     sortBy: string
-    items: User[]
+    items: UserResponse[]
 }

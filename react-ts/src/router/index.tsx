@@ -6,7 +6,7 @@ import {RouteItemType, routes} from '../config/routes'
 import { useAppDispatch, useAppSelector } from '../store'
 import { history } from '../utils/history'
 import {fetchMe} from "../store/features/auth/meSlice"
-import {Role, User} from '../store/types/user'
+import {Role, UserResponse} from '../store/types/userResponse'
 import {IState} from "../store/types/global"
 
 /**
@@ -50,7 +50,7 @@ export const AppRouter = () => {
     const dispatch = useAppDispatch()
     const [state, setState] = useState({ action: history.action, location: history.location })
     const [routeItems, setRouteItems] = useState<Array<RouteItemType>>([])
-    const me: IState<User> = useAppSelector(state => state.me)
+    const me: IState<UserResponse> = useAppSelector(state => state.me)
 
     useLayoutEffect(() => history.listen(setState), [])
     useEffect((): void => {

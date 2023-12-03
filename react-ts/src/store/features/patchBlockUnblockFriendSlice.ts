@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import UserApiClient from "../../utils/http-client/UserApiClient"
 import {IState} from "../types/global"
-import {User} from "../types/user"
+import {UserResponse} from "../types/userResponse"
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
@@ -18,7 +18,7 @@ export const fetchBlockUnblockFriend = createAsyncThunk('user/blockUnblockFriend
         }
     })
 
-const initialState: IState<User> = {
+const initialState: IState<UserResponse> = {
     isLoading: false,
     response: null,
     error: null
@@ -36,7 +36,7 @@ const patchBlockUnblockFriendSlice = createSlice({
             state.response = null
             state.error = null
         })
-        builder.addCase(fetchBlockUnblockFriend.fulfilled, (state, action: PayloadAction<User>): void => {
+        builder.addCase(fetchBlockUnblockFriend.fulfilled, (state, action: PayloadAction<UserResponse>): void => {
             state.isLoading = false
             state.response = action.payload
             state.error = null

@@ -1,4 +1,4 @@
-import { User } from "./user"
+import { UserResponse } from "./userResponse"
 
 export interface ILoginParams {
     email: string
@@ -8,5 +8,5 @@ export interface ILoginParams {
 export interface ILoginResponse {
     token: string
     refreshToken: string
-    user: User
+    user: UserResponse
 }

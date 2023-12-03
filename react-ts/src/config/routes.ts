@@ -2,7 +2,7 @@ import React from 'react'
 import Login from "../components/Login"
 import NotFound from "../components/NotFound"
 import Home from "../components/Home"
-import { Role } from '../store/types/user'
+import { Role } from '../store/types/userResponse'
 import Forbidden from "../components/Forbidden"
 
 export type RouteItemType = {

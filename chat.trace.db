@@ -493,3 +493,15 @@ org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (
 	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
 	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:114)
 	at java.base/java.lang.Thread.run(Thread.java:833)
+2023-12-02 23:57:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "TEXT CHARACTER VARYING(255)": "'Voluptatem voluptatibus aliquam quas omnis voluptatibus et reprehenderit. Ipsa ... (257)"; SQL statement:
+/* insert for com.github.senocak.domain.Message */insert into messages (binary,created_at,from_id,read_at, [22001-214]
+2023-12-03 00:00:37 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "TEXT CHARACTER VARYING(255)": "'Eos temporibus distinctio debitis commodi perferendis consequatur. Autem saepe ... (257)"; SQL statement:
+/* insert for com.github.senocak.domain.Message */insert into messages (binary,created_at,from_id,read_at, [22001-214]
+2023-12-03 00:00:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "TEXT CHARACTER VARYING(255)": "'Voluptatibus iure tempore incidunt. Ipsa deleniti vel sed amet itaque recusanda... (264)"; SQL statement:
+/* insert for com.github.senocak.domain.Message */insert into messages (binary,created_at,from_id,read_at, [22001-214]
+2023-12-03 00:00:59 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "TEXT CHARACTER VARYING(255)": "'Perferendis sint recusandae fuga temporibus placeat in. Aliquam itaque animi ap... (263)"; SQL statement:
+/* insert for com.github.senocak.domain.Message */insert into messages (binary,created_at,from_id,read_at, [22001-214]

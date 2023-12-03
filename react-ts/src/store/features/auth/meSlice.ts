@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import UserApiClient from '../../../utils/http-client/UserApiClient'
 import { IState } from '../../types/global'
-import {Friend, User} from '../../types/user'
+import {Friend, UserResponse} from '../../types/userResponse'
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
@@ -18,7 +18,7 @@ export const fetchMe = createAsyncThunk('user/fetchMe',
         }
     })
 
-const initialState: IState<User> = {
+const initialState: IState<UserResponse> = {
     isLoading: false,
     response: null,
     error: null
@@ -29,11 +29,11 @@ const meSlice = createSlice({
     initialState,
     reducers: {
         resetMe: () => initialState,
-        updateFriendsInContext: (state: IState<User>, action): void => {
+        updateFriendsInContext: (state: IState<UserResponse>, action): void => {
             if (state.response)
                 state.response!.friends = action.payload.friends
         },
-        deleteFriendsInContext: (state: IState<User>, action): void => {
+        deleteFriendsInContext: (state: IState<UserResponse>, action): void => {
             console.log(action.payload)
             if (state.response)
                 for (let i: number = 0; i < state.response.friends.length; i++) {
@@ -43,7 +43,7 @@ const meSlice = createSlice({
                     }
                 }
         },
-        addFriendsInContext: (state: IState<User>, action): void => {
+        addFriendsInContext: (state: IState<UserResponse>, action): void => {
             if (state.response) {
                 const newFriend: Friend = {
                     status: "Pending",
@@ -60,7 +60,7 @@ const meSlice = createSlice({
             state.response = null
             state.error = null
         })
-        builder.addCase(fetchMe.fulfilled, (state, action: PayloadAction<User>) => {
+        builder.addCase(fetchMe.fulfilled, (state, action: PayloadAction<UserResponse>) => {
             state.isLoading = false
             state.response = action.payload
             state.error = null

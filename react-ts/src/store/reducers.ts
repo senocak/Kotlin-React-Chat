@@ -5,6 +5,7 @@ import patchBlockUnblockFriendSlice from "./features/patchBlockUnblockFriendSlic
 import getAllUsersSlice from "./features/getAllUsersSlice"
 import putFriendSlice from "./features/putFriendSlice"
 import deleteFriendSlice from "./features/deleteFriendSlice"
+import getAllMessagesSlice from "./features/getAllMessagesSlice"
 
 export default combineReducers({
     me: meSlice,
@@ -13,4 +14,5 @@ export default combineReducers({
     patchBlockUnblockFriend: patchBlockUnblockFriendSlice,
     putFriend: putFriendSlice,
     deleteFriend: deleteFriendSlice,
+    getAllMessages: getAllMessagesSlice,
 })

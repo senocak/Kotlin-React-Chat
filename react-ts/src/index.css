@@ -264,15 +264,12 @@ b {
     left: 0;
     top: 35px;
     right: 0;
-    bottom: 44px;
+    bottom: 70px;
     overflow-y: auto;
     outline: none;
 }
 .chat-area .chat-list > div > .jspPane {
     margin-left: 0 !important;
-}
-.chat-area ul {
-    margin-right: -4px;
 }
 .chat-area ul > li {
     border-top: 1px solid #cfdae1;

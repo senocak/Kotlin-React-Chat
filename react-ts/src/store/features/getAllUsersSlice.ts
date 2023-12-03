@@ -1,14 +1,13 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import UserApiClient from "../../utils/http-client/UserApiClient"
 import {IPagination, IState} from "../types/global"
-import {UserPaginationDTO} from "../types/user"
+import {UserPaginationDTO} from "../types/userResponse"
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
 export const fetchGetAllUsers = createAsyncThunk('user/allUsers',
     async (params: IPagination, {rejectWithValue}) => {
         try {
-            console.log("params", params)
             const {data} = await userApiClient.getAllUsers(params)
             return data
         } catch (error: any) {

@@ -1,14 +1,14 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import UserApiClient from "../../utils/http-client/UserApiClient"
-import {IState} from "../types/global"
-import {UserResponse} from "../types/userResponse"
+import {IPagination, IState} from "../types/global"
+import {MessagesPaginationDTO} from "../types/message"
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
-export const fetchPutFriend = createAsyncThunk('user/putFriend',
-    async (email: string, {rejectWithValue}) => {
+export const fetchGetAllMessages = createAsyncThunk('user/allMessages',
+    async (params: { email: string, params: IPagination }, {rejectWithValue}) => {
         try {
-            const {data} = await userApiClient.putFriend(email)
+            const {data} = await userApiClient.getAllMessages(params.email, params.params)
             return data
         } catch (error: any) {
             if (!error.response) {
@@ -18,30 +18,30 @@ export const fetchPutFriend = createAsyncThunk('user/putFriend',
         }
     })
 
-const initialState: IState<UserResponse> = {
+const initialState: IState<MessagesPaginationDTO> = {
     isLoading: false,
     response: null,
     error: null
 }
 
-const putFriendSlice = createSlice({
-    name: 'user/putFriend',
+const getAllMessagesSlice = createSlice({
+    name: 'user/allMessages',
     initialState,
     reducers: {
         resetMe: () => initialState
     },
     extraReducers: builder => {
-        builder.addCase(fetchPutFriend.pending, state => {
+        builder.addCase(fetchGetAllMessages.pending, state => {
             state.isLoading = true
             state.response = null
             state.error = null
         })
-        builder.addCase(fetchPutFriend.fulfilled, (state, action: PayloadAction<UserResponse>): void => {
+        builder.addCase(fetchGetAllMessages.fulfilled, (state, action: PayloadAction<MessagesPaginationDTO>): void => {
             state.isLoading = false
             state.response = action.payload
             state.error = null
         })
-        builder.addCase(fetchPutFriend.rejected, (state, action): void => {
+        builder.addCase(fetchGetAllMessages.rejected, (state, action): void => {
             state.isLoading = false
             state.response = null
             state.error = action.payload
@@ -49,7 +49,7 @@ const putFriendSlice = createSlice({
     }
 })
 
-export default putFriendSlice.reducer
+export default getAllMessagesSlice.reducer
 export const {
     resetMe
-} = putFriendSlice.actions
+} = getAllMessagesSlice.actions

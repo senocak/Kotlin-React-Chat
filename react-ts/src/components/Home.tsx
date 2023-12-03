@@ -1,29 +1,35 @@
-import React, {useEffect, useState} from 'react'
+import React, {Component, createRef, useEffect, useRef, useState} from 'react'
 import {useAppDispatch, useAppSelector} from "../store"
 import {IPagination, IState} from "../store/types/global"
-import {Friend, User, UserPaginationDTO} from "../store/types/user"
+import {Friend, UserResponse, UserPaginationDTO} from "../store/types/userResponse"
 import Notification from "./Notification"
 import EmojiPicker, {EmojiClickData} from "emoji-picker-react"
 import {fetchBlockUnblockFriend} from "../store/features/patchBlockUnblockFriendSlice"
 import {addFriendsInContext, deleteFriendsInContext, updateFriendsInContext} from "../store/features/auth/meSlice"
 import {fetchGetAllUsers} from "../store/features/getAllUsersSlice"
-import {fetchPutFriend} from "../store/features/putFriendSlice";
-import {fetchDeleteFriend} from "../store/features/deleteFriendSlice";
+import {fetchPutFriend} from "../store/features/putFriendSlice"
+import {fetchDeleteFriend} from "../store/features/deleteFriendSlice"
+import {fetchGetAllMessages} from "../store/features/getAllMessagesSlice"
+import {MessageDTO} from "../store/types/message"
+import moment from "moment"
+import {makeid} from "../utils"
 
 function Home(): React.JSX.Element {
     const dispatch = useAppDispatch()
-    const me: IState<User> = useAppSelector(state => state.me)
-    const patchBlockUnblockFriend: IState<User> = useAppSelector(state => state.patchBlockUnblockFriend)
+    const me: IState<UserResponse> = useAppSelector(state => state.me)
+    const patchBlockUnblockFriend: IState<UserResponse> = useAppSelector(state => state.patchBlockUnblockFriend)
     const getAllUsers: IState<UserPaginationDTO> = useAppSelector(state => state.getAllUsers)
-    const putFriend: IState<User> = useAppSelector(state => state.putFriend)
-    const deleteFriend: IState<User> = useAppSelector(state => state.deleteFriend)
+    const putFriend: IState<UserResponse> = useAppSelector(state => state.putFriend)
+    const deleteFriend: IState<UserResponse> = useAppSelector(state => state.deleteFriend)
+    const getAllMessages = useAppSelector(state => state.getAllMessages)
     const [notification, setNotification] = useState({show: false, color: "green", msg: ""})
     const [selectedFriend, setSelectedFriend] = useState<Friend |null>(null)
-    const [selectedNewFriend, setSelectedNewFriend] = useState<User |null>(null)
+    const [selectedNewFriend, setSelectedNewFriend] = useState<UserResponse |null>(null)
     const [selectedTab, setSelectedTab] = useState<string>('')
     const [msg, setMsg] = useState<string>('')
     const [showPicker, setShowPicker] = useState<boolean>(false)
-    const [allUsers, setAllUsers] = useState<User[] |null>(null)
+    const [allUsers, setAllUsers] = useState<UserResponse[] |null>(null)
+    const messagesEndRef = useRef<HTMLLIElement>(null)
 
     const defaultPagination : IPagination = {
         page: 1,
@@ -39,7 +45,7 @@ function Home(): React.JSX.Element {
         if (patchBlockUnblockFriend.response !== null && !patchBlockUnblockFriend.isLoading) {
             const friends: Friend[] = patchBlockUnblockFriend.response.friends
             dispatch(updateFriendsInContext({friends: friends}))
-            const userFromFriend: User = getUserFromFriend(selectedFriend!)
+            const userFromFriend: UserResponse = getUserFromFriend(selectedFriend!)
             const find: Friend | undefined = friends.find((f: Friend) => f.owner.email === userFromFriend.email || f.person.email === userFromFriend.email)
             if (find)
                 setSelectedFriend(find)
@@ -88,7 +94,17 @@ function Home(): React.JSX.Element {
             }, 3000)
         }
     }, [deleteFriend, dispatch])
-    const getUserFromFriend = (friend: Friend): User => friend.owner?.email === me.response?.email ? friend.person : friend.owner
+    useEffect((): void => {
+        if (selectedFriend !== null) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'end' })
+            dispatch(fetchGetAllMessages({email: getUserFromFriend(selectedFriend).email, params: pagination}))
+        }
+    }, [selectedFriend])
+    const getUserFromFriend = (friend: Friend): UserResponse => friend.owner?.email === me.response?.email ? friend.person : friend.owner
+    const extract = (base64Data: string): [string, string] => {
+        const [raw, mediaType, rawData]: RegExpMatchArray = base64Data.match(/^data:([^;]+);base64,(.+)$/)!
+        return [mediaType, rawData]
+    }
 
     return <>
             <div className="window-area">
@@ -149,114 +165,37 @@ function Home(): React.JSX.Element {
                         </div>
                         <div className="chat-list">
                             <ul>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Hey, do you like the new interface? It's done with Font Awesome.</p>
-                                        <span className="msg-time">5:00 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p><span className="blue-label">Cucu Ionel</span> I see what you did there.</p>
-                                        <span className="msg-time">5:01 pm</span>
-                                    </div>
-                                </li>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Feel free to look at the code if you want.</p>
-                                        <span className="msg-time">5:02 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Yeah, will do.</p>
-                                        <span className="msg-time">5:04 pm</span>
-                                    </div>
-                                </li>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>This is an example text reply.</p>
-                                        <span className="msg-time">5:04 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>I know, put some more.</p>
-                                        <span className="msg-time">5:06 pm</span>
-                                    </div>
-                                </li>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Here is another line.</p>
-                                        <span className="msg-time">5:06 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Yeah, will do.</p>
-                                        <span className="msg-time">5:04 pm</span>
-                                    </div>
-                                </li>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Feel free to look at the code if you want.</p>
-                                        <span className="msg-time">5:02 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Yeah, will do.</p>
-                                        <span className="msg-time">5:04 pm</span>
-                                    </div>
-                                </li>
-                                <li className="me">
-                                    <div className="name">
-                                        <span className="">Cucu Ionel</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Feel free to look at the code if you want.</p>
-                                        <span className="msg-time">5:02 pm</span>
-                                    </div>
-                                </li>
-                                <li className="">
-                                    <div className="name">
-                                        <span className="">Christian Smith</span>
-                                    </div>
-                                    <div className="message">
-                                        <p>Yeah, will do.</p>
-                                        <span className="msg-time">5:04 pm</span>
-                                    </div>
-                                </li>
+                                {
+                                    (getAllMessages.response !== null && !getAllMessages.isLoading) &&
+                                    getAllMessages.response.items.map((message: MessageDTO) =>
+                                        <>
+                                            <li className={me.response?.email !== message.from.email ? 'me': ''} ref={messagesEndRef}>
+                                                <div className="name">
+                                                    <span className="">{message.from.email !== me.response?.email ? message.from.name : ''}</span>
+                                                </div>
+                                                <div className="message">
+                                                    {message.text !== undefined && <p>{message.text}</p>}
+                                                    {message.binary !== undefined &&
+                                                        <p>
+                                                            <span className="blue-label">
+                                                                <a href={message.binary} download={makeid(15)} style={{color: 'white', textDecoration: 'none'}}>
+                                                                    {extract(message.binary)[0]}
+                                                                </a>
+                                                            </span>
+                                                        </p>
+                                                    }
+                                                    <span className="msg-time">
+                                                        {moment(message.createdAt * 1_000).fromNow()}
+                                                        {/*
+                                                        <sup> ({(new Date(message.createdAt * 1000)).toLocaleString('tr-TR', {formatMatcher: "basic"})})</sup>
+                                                        */}
+                                                        {message.readAt === undefined ? <i className="fa-solid fa-check"></i>: <i className="fa-solid fa-check-double"></i>}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </>
+                                    )
+                                }
                             </ul>
                         </div>
                         <div className="input-area">
@@ -387,7 +326,7 @@ function Home(): React.JSX.Element {
                                         {
                                             (allUsers !== null) &&
                                                 <>
-                                                    {allUsers.map((item: User) =>
+                                                    {allUsers.map((item: UserResponse) =>
                                                         <li>
                                                             <span>
                                                                 <img

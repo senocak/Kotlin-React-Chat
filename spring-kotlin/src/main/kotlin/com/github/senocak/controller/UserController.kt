@@ -418,7 +418,7 @@ class UserController(
     )
     @GetMapping("/message/{email}")
     fun getMessagesBetween(
-        @Parameter(description = "User email to delete", required = true) @PathVariable email: String,
+        @Parameter(description = "User email to fetch messages", required = true) @PathVariable email: String,
         @Parameter(name = "page", description = "Page number", example = "0") @RequestParam(defaultValue = "1", required = false) page: Int,
         @Parameter(name = "size", description = "Page size", example = "20") @RequestParam(defaultValue = "\${spring.data.web.pageable.default-page-size:10}", required = false) size: Int,
         @Parameter(name = "sortBy", description = "Sort by column", example = "createdAt") @RequestParam(defaultValue = "createdAt", required = false) sortBy: String,
