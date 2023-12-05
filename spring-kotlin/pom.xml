@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <kotlin.version>1.6.21</kotlin.version>
+        <kotlin.version>1.9.20</kotlin.version>
         <jjwt.version>0.11.5</jjwt.version>
         <swagger.version>2.1.0</swagger.version>
         <liquibase.maven.plugin.version>3.6.3</liquibase.maven.plugin.version>
@@ -158,8 +158,18 @@
             <artifactId>mockito-kotlin</artifactId>
             <version>${mockito-kotlin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.senocak</groupId>
+            <artifactId>regexpbuilderkotlin</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
-
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>

@@ -56,23 +56,17 @@ const meSlice = createSlice({
         },
         updateOnlineOfflineFriendInContext: (state: IState<UserResponse>, action): void => {
             const emails = action.payload.data.split(",")
+            const type = action.payload.type
+            const me = action.payload.me
             if (state.response) {
                 for (const i in emails) {
-                    if (state.response.friends[Number(i)].owner.email === emails[i] || state.response.friends[Number(i)].person.email === emails[i]) {
-                        state.response.friends[Number(i)].isOnline = action.payload.type === 'online'
-                        break
+                    if (emails[i] !== me) {
+                        const findIndex: number = state.response.friends.findIndex((f: Friend): boolean => f.owner.email === emails[i] || f.person.email === emails[i])
+                        const friend: Friend = state.response.friends[Number(findIndex)]
+                        friend.isOnline = type === 'online'
                     }
                 }
             }
-            //if (state.response) {
-            //    const newFriend: Friend = {
-            //        status: "Pending",
-            //        person: action.payload.person,
-            //        owner: action.payload.owner,
-            //        isOnline: false
-            //    }
-            //    state.response.friends.push(newFriend)
-            //}
         },
     },
     extraReducers: builder => {

@@ -54,9 +54,9 @@ function Home(): React.JSX.Element {
         ws.onmessage = (event: IMessageEvent): void => {
             const parse: WsRequestBody = JSON.parse(event.data.toString())
             if (parse.type === WsType.Online) {
-                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'online'}))
+                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'online', me: me.response?.email}))
             } else  if (parse.type === WsType.Offline) {
-                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'offline'}))
+                dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'offline', me: me.response?.email}))
             } else  if (parse.type === WsType.PrivateMessage) {
                 console.log("PrivateMessage")
             } else if (parse.type === WsType.FriendShipPending) {
@@ -390,14 +390,7 @@ function Home(): React.JSX.Element {
                                                     {allUsers.map((item: UserResponse) =>
                                                         <li>
                                                             <span>
-                                                                <img
-                                                                    src={item.picture}
-                                                                    alt={item.name}
-                                                                    style={{
-                                                                        width: '20px',
-                                                                        border: '1px solid red',
-                                                                        borderRadius: '100px'
-                                                                    }}/> {item.name}
+                                                                <img src={item.picture} alt={item.name} style={{width: '20px'}}/> {item.name}
                                                             </span>
                                                             {
                                                                 me.response?.friends.find((f: Friend) => f.owner.email === item.email || f.person.email === item.email)
