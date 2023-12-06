@@ -82,6 +82,7 @@ class WebsocketChannelHandler(
                     val (_: String, emailFromJWT: String) = getAccessTokenFromQueryParams(query = session.uri!!.query)
                     requestBody.from = emailFromJWT
                     webSocketCacheService.sendPrivateMessage(requestBody = requestBody)
+                    // TODO: save it to db
                     log.info("Websocket message sent: ${message.payload}")
                 } catch (ex: Exception) {
                     log.error("Unable to parse request body; Exception: ${ex.message}")
