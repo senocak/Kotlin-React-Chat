@@ -1,5 +1,5 @@
 export interface WsRequestBody {
-    from: string
+    from?: string
     to?: string
     type: WsType
     content?: string

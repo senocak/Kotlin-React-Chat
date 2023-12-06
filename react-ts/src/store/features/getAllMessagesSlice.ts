@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import UserApiClient from "../../utils/http-client/UserApiClient"
 import {IPagination, IState} from "../types/global"
-import {MessagesPaginationDTO} from "../types/message"
+import {MessageDTO, MessagesPaginationDTO} from "../types/message"
 
 const userApiClient: UserApiClient = UserApiClient.getInstance()
 
@@ -28,7 +28,28 @@ const getAllMessagesSlice = createSlice({
     name: 'user/allMessages',
     initialState,
     reducers: {
-        resetMe: () => initialState
+        reset: () => initialState,
+        addNewMessageInContext: (state: IState<MessagesPaginationDTO>, action): void => {
+            const from = action.payload.from
+            const to = action.payload.to
+            if (state.response) {
+                const messageDTOS: MessageDTO[] = state.response.items
+                    .filter((messsage: MessageDTO) => {
+                        return (messsage.from.email === from.email && messsage.to.email === to.email) || (messsage.from.email === to.email && messsage.to.email === from.email)
+                    })
+                if (messageDTOS.length > 0) {
+                   // const messageDto: MessageDTO = {
+                   //     id: "",
+                   //     from: from,
+                   //     to: to,
+                   //     text: action.payload.content,
+                   //     createdAt: action.payload.date,
+                   //     updatedAt: action.payload.date
+                   // }
+                    state.response.items.push(action.payload.messageDto)
+                }
+            }
+        },
     },
     extraReducers: builder => {
         builder.addCase(fetchGetAllMessages.pending, state => {
@@ -51,5 +72,6 @@ const getAllMessagesSlice = createSlice({
 
 export default getAllMessagesSlice.reducer
 export const {
-    resetMe
+    reset,
+    addNewMessageInContext,
 } = getAllMessagesSlice.actions

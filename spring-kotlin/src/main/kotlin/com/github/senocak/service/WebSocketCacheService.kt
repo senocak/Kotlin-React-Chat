@@ -61,12 +61,14 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
      * @param message message to broadcast.
      */
     private fun broadCastMessage(message: String, type: WsType) {
-        val wsRequestBody: WsRequestBody = WsRequestBody(
-            from = "server",
-            to = null,
-            date = Instant.now().toEpochMilli(),
-            type = type
-        ).also { it.content = message }
+        val wsRequestBody: WsRequestBody = WsRequestBody()
+            .also {
+                it.from = "server"
+                //it.to = null
+                it.date = Instant.now().toEpochMilli()
+                it.type = type
+                it.content = message
+            }
         allWebSocketSession.forEach {
             try {
                 it.value.session.sendMessage(TextMessage(objectMapper.writeValueAsString(wsRequestBody)))
@@ -106,12 +108,14 @@ class WebSocketCacheService(private val objectMapper: ObjectMapper) {
             log.error("User or Session not found in cache for user: $to, returning...")
             return
         }
-        val requestBody: WsRequestBody = WsRequestBody(
-            from = from,
-            to = to,
-            type = type,
-            date = Instant.now().toEpochMilli()
-        ).also { it.content = payload }
+        val requestBody: WsRequestBody = WsRequestBody().also {
+            it.from = from
+            it.to = to
+            it.type = type
+            it.date = Instant.now().toEpochMilli()
+            if (payload !== null)
+                it.content = payload
+        }
         try {
             userTo.session.sendMessage(TextMessage(objectMapper.writeValueAsString(requestBody)))
         } catch (e: IOException) {

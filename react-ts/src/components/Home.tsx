@@ -14,7 +14,7 @@ import {
 import {fetchGetAllUsers} from "../store/features/getAllUsersSlice"
 import {fetchPutFriend} from "../store/features/putFriendSlice"
 import {fetchDeleteFriend} from "../store/features/deleteFriendSlice"
-import {fetchGetAllMessages} from "../store/features/getAllMessagesSlice"
+import {addNewMessageInContext, fetchGetAllMessages} from "../store/features/getAllMessagesSlice"
 import {MessageDTO} from "../store/types/message"
 import moment from "moment"
 import {makeid} from "../utils"
@@ -40,6 +40,7 @@ function Home(): React.JSX.Element {
     const [allUsers, setAllUsers] = useState<UserResponse[] |null>(null)
     const messagesEndRef = useRef<HTMLLIElement>(null)
     const [wsConnection, setWsConnection] = useState<WebSocket |null>(null)
+    const selectedFriendRef = useRef<any>()
 
     useEffect((): void => {
         const ws: WebSocket = new WebSocket(`${app.API_WS}?access_token=${AppStorage.getAccessToken()}`)
@@ -55,10 +56,44 @@ function Home(): React.JSX.Element {
             const parse: WsRequestBody = JSON.parse(event.data.toString())
             if (parse.type === WsType.Online) {
                 dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'online', me: me.response?.email}))
+                // {from: 'server', to: 'anil@senocak.com', type: 'Online', content: 'anil@senocak.com,canela@skin.com,sarah@banks.com', date: 1701858207810}
             } else  if (parse.type === WsType.Offline) {
                 dispatch(updateOnlineOfflineFriendInContext({data: parse.content, type: 'offline', me: me.response?.email}))
+                // {from: 'server', to: 'anil@senocak.com', type: 'Offline', content: 'anil@senocak.com,canela@skin.com,sarah@banks.com', date: 1701858207810}
             } else  if (parse.type === WsType.PrivateMessage) {
-                console.log("PrivateMessage")
+                const fromFriend: Friend | undefined = me.response?.friends.find((friend: Friend) => friend.owner.email === parse.from || friend.person.email === parse.from);
+                let fromUser;
+                if (fromFriend) {
+                    fromUser = fromFriend.person.email ===me.response?.email ? fromFriend.owner : fromFriend.person
+                }
+                if (!fromUser || !selectedFriendRef.current) {
+                    setWsConnection(ws)
+                    setNotification({show: true, color: 'red', msg: `Geçersiz işlem`})
+                    setTimeout((): void => {
+                        setNotification({show: false, color: '', msg: ''})
+                    }, 1_000)
+                    return
+                }
+                if (getUserFromFriend(selectedFriendRef.current).email === fromUser.email) {
+                    dispatch(addNewMessageInContext(
+                        {
+                            from: fromUser,
+                            to: me.response,
+                            content: parse.content,
+                            date: parse.date,
+                            messageDto: {
+                                id: "",
+                                from: fromUser,
+                                to: me.response,
+                                text: parse.content,
+                                createdAt: parse.date,
+                                updatedAt: parse.date
+                            }
+                        }
+                    ))
+                    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'end' })
+                }
+                // {from: 'sarah@banks.com', to: 'anil@senocak.com', type: 'PrivateMessage', content: 'Hello from {{username3}}', date: 1701858157851}
             } else if (parse.type === WsType.FriendShipPending) {
                 console.log("FriendShipPending")
             } else if (parse.type === WsType.FriendShipAccepted) {
@@ -153,6 +188,7 @@ function Home(): React.JSX.Element {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'end' })
             dispatch(fetchGetAllMessages({email: getUserFromFriend(selectedFriend).email, params: pagination}))
         }
+        selectedFriendRef.current = selectedFriend
     }, [selectedFriend])
     const getUserFromFriend = (friend: Friend): UserResponse => friend.owner?.email === me.response?.email ? friend.person : friend.owner
     const extract = (base64Data: string): [string, string] => {

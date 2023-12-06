@@ -15,10 +15,10 @@ data class WebsocketIdentifier(
     var session: WebSocketSession
 ): BaseDto()
 
-data class WsRequestBody(
-    var from: String,
-    var to: String? = null,
-    var type: WsType,
-    var content: Any? = null,
-    var date: Long
-): BaseDto()
+class WsRequestBody: BaseDto() {
+    lateinit var from: String
+    lateinit var  to: String
+    lateinit var type: WsType
+    lateinit var content: Any
+    var date: Long = 0
+}

@@ -1,7 +1,7 @@
 export interface UserResponse {
     name: string
     email: string
-    picture: string
+    picture?: string
     roles: Role[]
     friends: Friend[]
 }
