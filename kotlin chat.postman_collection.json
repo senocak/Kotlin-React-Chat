@@ -1,0 +1,608 @@
+{
+	"info": {
+		"_postman_id": "8b11eb84-6001-4d53-aee0-e613994995c9",
+		"name": "kotlin chat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7821151",
+		"_collection_link": "https://lively-comet-8198.postman.co/workspace/An%25C4%25B1l~d33d46fc-ebc0-4ccb-81ba-caceff009d2d/collection/7821151-8b11eb84-6001-4d53-aee0-e613994995c9?action=share&source=collection_link&creator=7821151"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login-user1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.collectionVariables.set(\"token\", json.token)",
+									"    pm.collectionVariables.set(\"username\", json.user.username)",
+									"    pm.collectionVariables.set(\"email\", json.user.email)",
+									"    pm.collectionVariables.set(\"refreshToken\", json.refreshToken)",
+									"",
+									"    pm.globals.set(\"token1\", json.token)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"anil1@senocak.com\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-user2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.collectionVariables.set(\"token\", json.token)",
+									"    pm.collectionVariables.set(\"username\", json.user.username)",
+									"    pm.collectionVariables.set(\"email\", json.user.email)",
+									"    pm.collectionVariables.set(\"refreshToken\", json.refreshToken)",
+									"",
+									"    pm.globals.set(\"token2\", json.token)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"canela@skin.com\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-user3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.collectionVariables.set(\"token\", json.token)",
+									"    pm.collectionVariables.set(\"username\", json.user.username)",
+									"    pm.collectionVariables.set(\"email\", json.user.email)",
+									"    pm.collectionVariables.set(\"refreshToken\", json.refreshToken)",
+									"",
+									"    pm.globals.set(\"token3\", json.token)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"sarah@banks.com\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.globals.set(\"token\", json.token)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"lorem ipsum\",\n    \"email\": \"lorem@ipsum.com\",\n    \"username\": \"lorem\",\n    \"password\": \"asenocak\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const   response    =   pm.response",
+									"        json        =   response.json()",
+									"pm.test(\"Status code is 200\", function () {",
+									"    response.to.have.status(200)",
+									"    pm.collectionVariables.set(\"token\", json.token)",
+									"    pm.collectionVariables.set(\"username\", json.user.username)",
+									"    pm.collectionVariables.set(\"email\", json.user.email)",
+									"    pm.collectionVariables.set(\"refreshToken\", json.refreshToken)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/auth/refresh",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/auth/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "id",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "desc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/user/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"password\": \"asenocak2\",\n    \"password_confirmation\": \"asenocak2\",\n    \"phone\": \"+905554443322\",\n    \"gender\": \"MALE\",\n    \"birthDate\": \"01-01-1994 12:00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/user/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "follow",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/v1/user/friend/anil2@senocak.com",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"friend",
+								"anil2@senocak.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unfollow",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/v1/user/friend/anil2@senocak.com",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"friend",
+								"anil2@senocak.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "block/unblock",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/v1/user/friend/anil2@senocak.com?operation=block",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"friend",
+								"anil2@senocak.com"
+							],
+							"query": [
+								{
+									"key": "operation",
+									"value": "block"
+								},
+								{
+									"key": "operation",
+									"value": "unblock",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "message",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/user/message/anil2@senocak.com",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"message",
+								"anil2@senocak.com"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "desc",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "id",
+									"disabled": true
+								},
+								{
+									"key": "q",
+									"value": "from",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:8081",
+			"type": "default"
+		},
+		{
+			"key": "refreshToken1",
+			"value": ""
+		},
+		{
+			"key": "refreshToken2",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "token1",
+			"value": ""
+		},
+		{
+			"key": "username1",
+			"value": ""
+		},
+		{
+			"key": "email1",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "email",
+			"value": ""
+		}
+	]
+}
